@@ -1,0 +1,14 @@
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+terraform.tfvars
+*.tfstate.backup
+*.tfplan
+tfplan
+.env
+
+.venv/
+__pycache__/
+*.pyc
+
+app/app.zip
