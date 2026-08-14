@@ -225,3 +225,59 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 5000)),
         debug=True,
     )
+
+
+
+@app.route("/users")
+def users():
+    server = os.getenv("DB_SERVER")
+    database = os.getenv("DB_NAME")
+
+    connection_string = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        f"SERVER=tcp:{server},1433;"
+        f"DATABASE={database};"
+        "Authentication=ActiveDirectoryMsi;"
+        "Encrypt=yes;"
+        "TrustServerCertificate=no;"
+        "Connection Timeout=10;"
+    )
+
+    connection = None
+    cursor = None
+
+    try:
+        connection = pyodbc.connect(connection_string)
+        cursor = connection.cursor()
+
+        cursor.execute(
+            "SELECT id, name, email, created_at FROM Users ORDER BY id"
+        )
+
+        rows = cursor.fetchall()
+
+        users = [
+            {
+                "id": row.id,
+                "name": row.name,
+                "email": row.email,
+                "created_at": row.created_at.isoformat()
+                if row.created_at
+                else None,
+            }
+            for row in rows
+        ]
+
+        return jsonify(users)
+
+    except Exception as error:
+        return jsonify({
+            "error": str(error)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
