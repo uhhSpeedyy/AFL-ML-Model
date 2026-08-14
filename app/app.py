@@ -4,7 +4,7 @@ import time
 import pyodbc
 import socket
 from dotenv import load_dotenv
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, jsonify
 from azure.identity import ManagedIdentityCredential
 load_dotenv()
 
