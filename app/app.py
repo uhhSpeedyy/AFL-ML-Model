@@ -73,7 +73,7 @@ STATUS_TEMPLATE = """
 
 <body>
 
-    <h1>Sam Speed</h1>
+    <h1>Sam Speed Cloud Infra</h1>
 
     <div class="box">
         <h2>Application Status</h2>
