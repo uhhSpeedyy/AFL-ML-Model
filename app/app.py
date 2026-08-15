@@ -218,7 +218,6 @@ def network_test():
             "error": str(error)
         }, 500
 
-    )
 
 
 
