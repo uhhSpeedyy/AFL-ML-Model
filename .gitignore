@@ -6,7 +6,7 @@ terraform.tfvars
 *.tfplan
 tfplan
 .env
-
+.DS_Store
 .venv/
 __pycache__/
 *.pyc
