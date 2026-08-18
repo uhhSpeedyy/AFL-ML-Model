@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Weekly AFL match probabilities, expected margins and the pre-match indicators behind each prediction.">
+    <title>AFL ML Prediction Model</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <nav class="topline" aria-label="Page summary">
+                <span class="brand-mark" aria-hidden="true">AFL<span>ML</span></span>
+                <span class="round-pill">{{ payload.get('season', '2026') }} · {{ payload.get('round_name', 'Next round') }}</span>
+            </nav>
+            <div class="hero-copy">
+                <p class="eyebrow">Data-led weekly forecasts</p>
+                <h1>AFL ML<br><span>Prediction Model</span></h1>
+                <p class="byline">By Sam Speed</p>
+                <p class="intro">Win probabilities, expected margins and the pre-match football indicators driving every call.</p>
+            </div>
+            {% if report.get('holdout_metrics') %}
+            <div class="model-scorecard" aria-label="Independent 2022 model test results">
+                <p class="scorecard-label">Untouched 2022 test season</p>
+                <div class="scorecard-metrics">
+                    <div><strong>{{ (report.holdout_metrics.tip_accuracy * 100)|round(1) }}%</strong><span>tips correct</span></div>
+                    <div><strong>{{ report.holdout_metrics.margin_mae }}</strong><span>point margin MAE</span></div>
+                    <div><strong>{{ report.holdout_metrics.matches }}</strong><span>matches tested</span></div>
+                </div>
+            </div>
+            {% endif %}
+        </header>
+
+        <main>
+            <section class="round-heading" aria-labelledby="round-title">
+                <div>
+                    <p class="section-kicker">This week</p>
+                    <h2 id="round-title">{{ payload.get('round_name', 'Upcoming games') }}</h2>
+                </div>
+                <p class="round-note">Home, away and draw probabilities add to 100%.</p>
+            </section>
+
+            {% if predictions %}
+            <div class="fixture-grid">
+                {% for prediction in predictions %}
+                {% set home_colours = team_colours(prediction.home_team) %}
+                {% set away_colours = team_colours(prediction.away_team) %}
+                <article class="match-card" id="match-{{ prediction.game_id }}">
+                    <div class="match-meta">
+                        <time datetime="{{ prediction.start_time }}">{{ display_time(prediction.start_time) }}</time>
+                        <span>{{ prediction.venue }}</span>
+                    </div>
+
+                    <div class="teams" aria-label="{{ prediction.home_team }} versus {{ prediction.away_team }}">
+                        <div class="team-row">
+                            <span class="team-badge" style="--team-primary: {{ home_colours[0] }}; --team-secondary: {{ home_colours[1] }}">{{ team_initials(prediction.home_team) }}</span>
+                            <span class="team-name">{{ prediction.home_team }}<small>Home</small></span>
+                            <strong class="probability">{{ prediction.home_win_probability }}%</strong>
+                        </div>
+                        <div class="probability-track" aria-hidden="true">
+                            <span class="home-share" style="width: {{ prediction.home_win_probability }}%; --bar-colour: {{ home_colours[0] }}"></span>
+                            <span class="away-share" style="width: {{ prediction.away_win_probability }}%; --bar-colour: {{ away_colours[0] }}"></span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-badge" style="--team-primary: {{ away_colours[0] }}; --team-secondary: {{ away_colours[1] }}">{{ team_initials(prediction.away_team) }}</span>
+                            <span class="team-name">{{ prediction.away_team }}<small>Away</small></span>
+                            <strong class="probability">{{ prediction.away_win_probability }}%</strong>
+                        </div>
+                    </div>
+
+                    <div class="forecast-callout">
+                        <span>Model call</span>
+                        <strong>{{ prediction.predicted_winner }} by {{ prediction.expected_margin|round(0)|int }}</strong>
+                        <small>{{ prediction.draw_probability }}% draw · 80% range: {{ margin_phrase(prediction.interval_80_low, prediction.home_team, prediction.away_team) }} to {{ margin_phrase(prediction.interval_80_high, prediction.home_team, prediction.away_team) }}</small>
+                    </div>
+
+                    <button class="explanation-toggle" type="button" aria-expanded="false" aria-controls="details-{{ prediction.game_id }}">
+                        <span>Why this prediction?</span>
+                        <span class="toggle-icon" aria-hidden="true">+</span>
+                    </button>
+
+                    <div class="prediction-details" id="details-{{ prediction.game_id }}" hidden>
+                        <div class="details-intro">
+                            <p>Strongest pre-match signals</p>
+                            <span>Recent matches only—no stats from this game are used.</span>
+                        </div>
+                        <div class="factor-list">
+                            {% for factor in prediction.factors %}
+                            <div class="factor-row">
+                                <div class="factor-copy">
+                                    <strong>{{ factor.label }}</strong>
+                                    <span>{{ factor.description }}</span>
+                                </div>
+                                {% if factor.home_value is not none and factor.away_value is not none %}
+                                <div class="factor-values" aria-label="{{ factor.home_value }} for {{ prediction.home_team }} and {{ factor.away_value }} for {{ prediction.away_team }}">
+                                    <span>{{ factor.home_value }}</span>
+                                    <i aria-hidden="true">vs</i>
+                                    <span>{{ factor.away_value }}</span>
+                                </div>
+                                {% endif %}
+                                <span class="factor-edge">Edge: {{ factor.advantage_team }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <p class="uncertainty-note">The forecast is probabilistic, not a certainty. Injuries, late changes and match-day conditions can move the result.</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <section class="empty-state">
+                <span aria-hidden="true">↻</span>
+                <h2>Next-round predictions are being prepared</h2>
+                <p>The fixture feed has no future round available yet. This page will update when the next games are confirmed.</p>
+            </section>
+            {% endif %}
+
+            <section class="method-strip" aria-labelledby="method-title">
+                <div>
+                    <p class="section-kicker">How it thinks</p>
+                    <h2 id="method-title">Form, chance quality and player strength—before the bounce.</h2>
+                </div>
+                <div class="method-grid">
+                    <div><span>01</span><strong>Team form</strong><p>Opponent-adjusted results plus recent attack and defence.</p></div>
+                    <div><span>02</span><strong>Territory & contest</strong><p>Lagged inside 50s, clearances, contested ball and pressure.</p></div>
+                    <div><span>03</span><strong>Chance quality</strong><p>xScore separates repeatable chance creation from finishing variance.</p></div>
+                    <div><span>04</span><strong>Available strength</strong><p>Rolling player ratings estimate the strength of each recent lineup.</p></div>
+                </div>
+            </section>
+
+            {% if report.get('top_predictive_features') %}
+            <section class="evidence-section" aria-labelledby="evidence-title">
+                <div class="evidence-heading">
+                    <div>
+                        <p class="section-kicker">Model evidence</p>
+                        <h2 id="evidence-title">What mattered in the held-out season</h2>
+                    </div>
+                    <p>Importance is measured by the increase in 2022 margin error when a signal is shuffled. Association does not prove causation.</p>
+                </div>
+                <ol class="importance-list">
+                    {% for feature in report.top_predictive_features[:6] %}
+                    <li>
+                        <span>{{ "%02d"|format(loop.index) }}</span>
+                        <strong>{{ feature.label }}</strong>
+                        <small>+{{ feature.mae_increase_when_shuffled|round(2) }} MAE when removed</small>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </section>
+            {% endif %}
+        </main>
+
+        <footer>
+            <div>
+                <strong>AFL ML Prediction Model</strong>
+                <span>By Sam Speed</span>
+            </div>
+            <p>Data: <a href="https://www.wheeloratings.com/" rel="noreferrer">Wheelo Ratings</a> and <a href="https://api.squiggle.com.au/" rel="noreferrer">Squiggle</a>. Predictions stored via {{ storage_source }}. Model outputs are for analysis and entertainment, not betting advice.</p>
+            {% if payload.get('generated_at') %}<small>Updated {{ display_time(payload.generated_at) }} AEST · {{ payload.get('model_version', '') }}</small>{% endif %}
+        </footer>
+    </div>
+</body>
+</html>

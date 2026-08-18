@@ -1,289 +1,199 @@
-import os
-import time
+from __future__ import annotations
 
-import pyodbc
-import socket
+import hmac
+import os
+import threading
+import time
+from datetime import datetime
+from functools import lru_cache
+from zoneinfo import ZoneInfo
+
 from dotenv import load_dotenv
-from flask import Flask, render_template_string, jsonify
-from azure.identity import ManagedIdentityCredential
+from flask import Flask, jsonify, render_template, request
+
+from afl_ml.artifacts import load_json
+from afl_ml.database import database_health, load_predictions
+from afl_ml.settings import Settings
+
+
 load_dotenv()
 
-app = Flask(__name__)
+MELBOURNE = ZoneInfo("Australia/Melbourne")
+REFRESH_LOCK = threading.Lock()
 
-SQL_COPT_SS_ACCESS_TOKEN = 1256
-SQL_SCOPE = "https://database.windows.net/.default"
+TEAM_COLOURS = {
+    "Adelaide": ("#0b2341", "#f6c343"),
+    "Brisbane Lions": ("#7c1734", "#f2b544"),
+    "Carlton": ("#102a43", "#e9f2f8"),
+    "Collingwood": ("#111111", "#f5f5f2"),
+    "Essendon": ("#171717", "#df2e38"),
+    "Fremantle": ("#37225f", "#f4f2f7"),
+    "Geelong": ("#142a4a", "#f4f4ee"),
+    "Gold Coast": ("#d9292f", "#f7c840"),
+    "GWS": ("#e26b20", "#222222"),
+    "Hawthorn": ("#4b2b25", "#f5b942"),
+    "Melbourne": ("#152b4e", "#d92c3a"),
+    "North Melbourne": ("#1f5ba8", "#f4f7fb"),
+    "Port Adelaide": ("#111111", "#27a7ad"),
+    "Richmond": ("#161616", "#f4c542"),
+    "St Kilda": ("#d72638", "#161616"),
+    "Sydney": ("#d9292f", "#f6f3eb"),
+    "West Coast": ("#123b76", "#f2c84b"),
+    "Western Bulldogs": ("#1f53a0", "#d9283d"),
+}
 
-STATUS_TEMPLATE = """
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Azure Cloud Infrastructure</title>
+def _team_initials(team: str) -> str:
+    special = {
+        "Brisbane Lions": "BL",
+        "Gold Coast": "GC",
+        "North Melbourne": "NM",
+        "Port Adelaide": "PA",
+        "St Kilda": "SK",
+        "West Coast": "WC",
+        "Western Bulldogs": "WB",
+    }
+    if team in special:
+        return special[team]
+    return "".join(word[0] for word in team.split()[:2]).upper()
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
+
+def _display_time(value: str) -> str:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return parsed.astimezone(MELBOURNE).strftime("%a %-d %b · %-I:%M %p")
+
+
+def _margin_phrase(value: float, home_team: str, away_team: str) -> str:
+    if abs(float(value)) < 0.5:
+        return "Level"
+    winner = home_team if float(value) > 0 else away_team
+    return f"{winner} by {abs(float(value)):.0f}"
+
+
+def create_app(settings: Settings | None = None) -> Flask:
+    settings = settings or Settings()
+    app = Flask(__name__)
+    app.config["SETTINGS"] = settings
+
+    @lru_cache(maxsize=1)
+    def model_report() -> dict:
+        return load_json(settings.report_path, default={})
+
+    @lru_cache(maxsize=2)
+    def _prediction_payload_cached(_minute_bucket: int) -> tuple[dict, str]:
+        if settings.database_enabled and settings.db_server:
+            try:
+                stored = load_predictions(settings)
+                if stored:
+                    return stored, "Azure SQL"
+            except Exception:
+                app.logger.warning("Azure SQL unavailable; serving the bundled snapshot")
+        return load_json(
+            settings.predictions_path,
+            default={"round_name": "Predictions pending", "predictions": []},
+        ), "model snapshot"
+
+    def prediction_payload() -> tuple[dict, str]:
+        return _prediction_payload_cached(int(time.monotonic() // 60))
+
+    @app.context_processor
+    def template_helpers() -> dict:
+        return {
+            "team_initials": _team_initials,
+            "team_colours": lambda team: TEAM_COLOURS.get(team, ("#26364a", "#f3f6f8")),
+            "display_time": _display_time,
+            "margin_phrase": _margin_phrase,
         }
 
-        h1 {
-            margin-bottom: 10px;
-        }
-
-        .box {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .ok {
-            color: green;
-            font-weight: bold;
-        }
-
-        .bad {
-            color: red;
-            font-weight: bold;
-        }
-
-        code {
-            background: #f4f4f4;
-            padding: 2px 5px;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <h1>Sam Speed Cloud Infra</h1>
-
-    <div class="box">
-        <h2>Application Status</h2>
-
-        <table>
-            <tr>
-                <th>Component</th>
-                <th>Status</th>
-                <th>Details</th>
-            </tr>
-
-            <tr>
-                <td>Flask application</td>
-                <td class="ok">Running</td>
-                <td>Application is responding</td>
-            </tr>
-
-            <tr>
-                <td>Azure SQL</td>
-                <td>
-                    {% if db.ok %}
-                        <span class="ok">Connected</span>
-                    {% else %}
-                        <span class="bad">Not connected</span>
-                    {% endif %}
-                </td>
-                <td>{{ db.detail }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="box">
-        <h2>Configuration</h2>
-
-        <p>
-            SQL Server configured:
-            {% if sql_configured %}
-                <span class="ok">Yes</span>
-            {% else %}
-                <span class="bad">No</span>
-            {% endif %}
-        </p>
-
-        <p>
-            Database configured:
-            {% if db_configured %}
-                <span class="ok">Yes</span>
-            {% else %}
-                <span class="bad">No</span>
-            {% endif %}
-        </p>
-    </div>
-
-    <div class="box">
-        <h2>Last Check</h2>
-        <p>{{ time }}</p>
-    </div>
-
-</body>
-</html>
-"""
-
-def check_database():
-    server = os.getenv("DB_SERVER")
-    database = os.getenv("DB_NAME")
-
-    if not server or not database:
-        return False, "DB_SERVER or DB_NAME is not configured"
-
-    connection_string = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        f"SERVER=tcp:{server},1433;"
-        f"DATABASE={database};"
-        "Authentication=ActiveDirectoryMsi;"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=10;"
-    )
-
-    connection = None
-    cursor = None
-
-    try:
-        connection = pyodbc.connect(connection_string)
-
-        cursor = connection.cursor()
-        cursor.execute("SELECT 1")
-        result = cursor.fetchone()
-
-        if result and result[0] == 1:
-            return True, "Azure SQL connection successful"
-
-        return False, "Unexpected SQL result"
-
-    except Exception as error:
-        return False, f"Database connection failed: {error}"
-
-    finally:
-        if cursor:
-            cursor.close()
-
-        if connection:
-            connection.close()
-
-
-@app.route("/identity-test")
-def identity_test():
-    try:
-        credential = ManagedIdentityCredential()
-        token = credential.get_token(
-            "https://database.windows.net/.default"
+    @app.get("/")
+    def index():
+        payload, storage_source = prediction_payload()
+        return render_template(
+            "index.html",
+            payload=payload,
+            predictions=payload.get("predictions", []),
+            report=model_report(),
+            storage_source=storage_source,
         )
 
-        return {
-            "status": "token acquired",
-            "expires_on": token.expires_on,
-            "website_site_name": os.getenv("WEBSITE_SITE_NAME"),
-        }
+    @app.get("/api/predictions")
+    def api_predictions():
+        payload, _ = prediction_payload()
+        return jsonify(payload)
 
-    except Exception as error:
-        return {
-            "status": "token acquisition failed",
-            "error": str(error),
-        }, 500
+    @app.get("/api/model")
+    def api_model():
+        return jsonify(model_report())
 
-import socket
-
-@app.route("/network-test")
-def network_test():
-    try:
-        ip = socket.gethostbyname("speedserver.database.windows.net")
-
-        return {
-            "hostname": "speedserver.database.windows.net",
-            "resolved_ip": ip,
-            "expected_private_ip": "10.0.1.4",
-            "private_path": ip == "10.0.1.4"
-        }
-
-    except Exception as error:
-        return {
-            "error": str(error)
-        }, 500
-
-
-
-
-@app.route("/users")
-def users():
-    server = os.getenv("DB_SERVER")
-    database = os.getenv("DB_NAME")
-
-    connection_string = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        f"SERVER=tcp:{server},1433;"
-        f"DATABASE={database};"
-        "Authentication=ActiveDirectoryMsi;"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=10;"
-    )
-
-    connection = None
-    cursor = None
-
-    try:
-        connection = pyodbc.connect(connection_string)
-        cursor = connection.cursor()
-
-        cursor.execute(
-            "SELECT id, name, email, created_at FROM Users ORDER BY id"
+    @app.get("/health")
+    def health():
+        # App Service probes must stay fast and must not keep a serverless SQL
+        # database awake. SQL connectivity has its own explicit readiness route.
+        payload = load_json(
+            settings.predictions_path,
+            default={"predictions": []},
         )
-
-        rows = cursor.fetchall()
-
-        users = [
+        return jsonify(
             {
-                "id": row.id,
-                "name": row.name,
-                "email": row.email,
-                "created_at": row.created_at.isoformat()
-                if row.created_at
-                else None,
+                "status": "ok",
+                "model_version": payload.get("model_version"),
+                "predictions": len(payload.get("predictions", [])),
+                "database_configured": bool(settings.db_server and settings.db_name),
             }
-            for row in rows
-        ]
+        )
 
-        return jsonify(users)
+    @app.get("/ready")
+    def ready():
+        if not settings.db_server:
+            return jsonify({"status": "ready", "database": "snapshot mode"})
+        ok, detail = database_health(settings)
+        if not ok:
+            app.logger.warning("Azure SQL readiness check failed: %s", detail)
+        status = 200 if ok else 503
+        database_state = "connected" if ok else "unavailable"
+        return jsonify({"status": "ready" if ok else "degraded", "database": database_state}), status
 
-    except Exception as error:
-        return jsonify({
-            "error": str(error)
-        }), 500
+    @app.post("/api/admin/refresh")
+    def admin_refresh():
+        configured = settings.refresh_token
+        supplied = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+        if not configured:
+            return jsonify({"error": "Prediction refresh is not configured"}), 503
+        if not supplied or not hmac.compare_digest(configured, supplied):
+            return jsonify({"error": "Unauthorized"}), 401
+        if not REFRESH_LOCK.acquire(blocking=False):
+            return jsonify({"error": "A refresh is already running"}), 409
+        try:
+            # The full pandas/scikit-learn stack is needed only by the scheduled
+            # refresh, not for normal web requests or container health probes.
+            from afl_ml.service import refresh_prediction_snapshot
 
-    finally:
-        if cursor:
-            cursor.close()
+            result = refresh_prediction_snapshot(
+                settings,
+                persist_db=True,
+                force=True,
+            )
+            _prediction_payload_cached.cache_clear()
+            return jsonify(
+                {
+                    "status": "refreshed",
+                    "round_name": result.get("round_name"),
+                    "predictions": len(result.get("predictions", [])),
+                    "state_updates_applied": result.get("state_updates_applied", 0),
+                }
+            )
+        finally:
+            REFRESH_LOCK.release()
 
-        if connection:
-            connection.close()
+    return app
 
 
-@app.route("/health")
-def health():
-    return {"status": "ok"}, 200
+app = create_app()
 
 
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
-        debug=True,
+        debug=os.environ.get("FLASK_DEBUG") == "1",
     )
