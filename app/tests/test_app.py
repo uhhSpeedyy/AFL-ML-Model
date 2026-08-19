@@ -42,6 +42,8 @@ def test_homepage_and_health_render_snapshot(tmp_path):
     assert response.status_code == 200
     assert b"AFL ML" in response.data
     assert b"By Sam Speed" in response.data
+    assert b"Data-led weekly forecasts" not in response.data
+    assert b"pre-match football indicators driving every call" not in response.data
 
     health = client.get("/health")
     assert health.status_code == 200

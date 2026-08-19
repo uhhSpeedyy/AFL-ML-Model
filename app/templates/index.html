@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Weekly AFL match probabilities, expected margins and the pre-match indicators behind each prediction.">
+    <meta name="description" content="Weekly AFL match predictions from Sam Speed's machine-learning model.">
     <title>AFL ML Prediction Model</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,10 +19,8 @@
                 <span class="round-pill">{{ payload.get('season', '2026') }} · {{ payload.get('round_name', 'Next round') }}</span>
             </nav>
             <div class="hero-copy">
-                <p class="eyebrow">Data-led weekly forecasts</p>
                 <h1>AFL ML<br><span>Prediction Model</span></h1>
                 <p class="byline">By Sam Speed</p>
-                <p class="intro">Win probabilities, expected margins and the pre-match football indicators driving every call.</p>
             </div>
             {% if report.get('holdout_metrics') %}
             <div class="model-scorecard" aria-label="Independent 2022 model test results">
