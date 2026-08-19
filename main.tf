@@ -158,7 +158,9 @@ resource "azurerm_linux_web_app" "app" {
   https_only = true
 
   site_config {
-    always_on         = true
+    # Keep this off so App Service does not ping `/` every five minutes and
+    # repeatedly wake the serverless Azure SQL database while the site is idle.
+    always_on         = false
     health_check_path = "/health"
     app_command_line  = "gunicorn --bind=0.0.0.0:8000 --workers=1 --threads=4 --timeout=230 app:app"
 
@@ -171,6 +173,7 @@ resource "azurerm_linux_web_app" "app" {
     DB_SERVER                      = var.sql_server_fqdn
     DB_NAME                        = var.sql_database_name
     AFL_DATABASE_ENABLED           = "true"
+    AFL_DATABASE_READ_ENABLED      = "false"
     AFL_HOLDOUT_SEASON             = "2022"
     AFL_START_SEASON               = "2012"
     AFL_CURRENT_SEASON             = "2026"

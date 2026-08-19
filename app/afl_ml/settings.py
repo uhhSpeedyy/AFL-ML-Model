@@ -4,7 +4,11 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:  # App Service settings are already provided as environment variables.
+    def load_dotenv(*_args: object, **_kwargs: object) -> bool:
+        return False
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +47,11 @@ class Settings:
     )
     database_enabled: bool = field(
         default_factory=lambda: _as_bool(os.getenv("AFL_DATABASE_ENABLED"), True)
+    )
+    database_read_enabled: bool = field(
+        default_factory=lambda: _as_bool(
+            os.getenv("AFL_DATABASE_READ_ENABLED"), False
+        )
     )
     db_server: str | None = field(default_factory=lambda: os.getenv("DB_SERVER"))
     db_name: str = field(default_factory=lambda: os.getenv("DB_NAME", "DB_one"))

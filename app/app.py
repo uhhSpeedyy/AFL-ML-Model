@@ -8,12 +8,16 @@ from datetime import datetime
 from functools import lru_cache
 from zoneinfo import ZoneInfo
 
-from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 
 from afl_ml.artifacts import load_json
-from afl_ml.database import database_health, load_predictions
 from afl_ml.settings import Settings
+
+try:
+    from dotenv import load_dotenv
+except ImportError:  # App Service settings are already provided as environment variables.
+    def load_dotenv() -> bool:
+        return False
 
 
 load_dotenv()
@@ -81,8 +85,17 @@ def create_app(settings: Settings | None = None) -> Flask:
 
     @lru_cache(maxsize=2)
     def _prediction_payload_cached(_minute_bucket: int) -> tuple[dict, str]:
-        if settings.database_enabled and settings.db_server:
+        # Public page views use the local snapshot by default. This prevents a
+        # visitor (or platform probe) from starting a serverless SQL billing
+        # window. Scheduled refreshes still persist predictions to Azure SQL.
+        if (
+            settings.database_read_enabled
+            and settings.database_enabled
+            and settings.db_server
+        ):
             try:
+                from afl_ml.database import load_predictions
+
                 stored = load_predictions(settings)
                 if stored:
                     return stored, "Azure SQL"
@@ -91,7 +104,7 @@ def create_app(settings: Settings | None = None) -> Flask:
         return load_json(
             settings.predictions_path,
             default={"round_name": "Predictions pending", "predictions": []},
-        ), "model snapshot"
+        ), "local model snapshot"
 
     def prediction_payload() -> tuple[dict, str]:
         return _prediction_payload_cached(int(time.monotonic() // 60))
@@ -146,6 +159,8 @@ def create_app(settings: Settings | None = None) -> Flask:
     def ready():
         if not settings.db_server:
             return jsonify({"status": "ready", "database": "snapshot mode"})
+        from afl_ml.database import database_health
+
         ok, detail = database_health(settings)
         if not ok:
             app.logger.warning("Azure SQL readiness check failed: %s", detail)
