@@ -102,6 +102,9 @@
                                 </div>
                                 {% endif %}
                                 <span class="factor-edge">Edge: {{ factor.advantage_team }}</span>
+                                {% if factor.linear_contribution_points is not none %}
+                                <span class="factor-impact">Estimated margin influence: {{ factor.linear_contribution_points|abs|round(1) }} points toward {{ factor.advantage_team }}</span>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -118,37 +121,41 @@
             </section>
             {% endif %}
 
-            <section class="method-strip" aria-labelledby="method-title">
-                <div>
-                    <p class="section-kicker">How it thinks</p>
-                    <h2 id="method-title">Form, chance quality and player strength—before the bounce.</h2>
-                </div>
-                <div class="method-grid">
-                    <div><span>01</span><strong>Team form</strong><p>Opponent-adjusted results plus recent attack and defence.</p></div>
-                    <div><span>02</span><strong>Territory & contest</strong><p>Lagged inside 50s, clearances, contested ball and pressure.</p></div>
-                    <div><span>03</span><strong>Chance quality</strong><p>xScore separates repeatable chance creation from finishing variance.</p></div>
-                    <div><span>04</span><strong>Available strength</strong><p>Rolling player ratings estimate the strength of each recent lineup.</p></div>
-                </div>
-            </section>
-
             {% if report.get('top_predictive_features') %}
-            <section class="evidence-section" aria-labelledby="evidence-title">
-                <div class="evidence-heading">
-                    <div>
-                        <p class="section-kicker">Model evidence</p>
-                        <h2 id="evidence-title">What mattered in the held-out season</h2>
-                    </div>
-                    <p>Importance is measured by the increase in 2022 margin error when a signal is shuffled. Association does not prove causation.</p>
+            <section class="indicators-section" aria-labelledby="indicators-title">
+                <div class="indicators-heading">
+                    <p class="section-kicker">How predictions are made</p>
+                    <h2 id="indicators-title">Key prediction indicators</h2>
+                    <p>The model compares each team's pre-match values. The 2022 impact shows how much less accurate its margin predictions became when that indicator was shuffled. A larger increase means the indicator carried more useful information; it does not mean one unit directly adds that many points.</p>
                 </div>
-                <ol class="importance-list">
+                <div class="indicator-table" role="table" aria-label="Key prediction indicators and their 2022 validation impact">
+                    <div class="indicator-table-head" role="row">
+                        <span role="columnheader">Indicator</span>
+                        <span role="columnheader">2022 test impact</span>
+                    </div>
                     {% for feature in report.top_predictive_features[:6] %}
-                    <li>
-                        <span>{{ "%02d"|format(loop.index) }}</span>
-                        <strong>{{ feature.label }}</strong>
-                        <small>+{{ feature.mae_increase_when_shuffled|round(2) }} MAE when removed</small>
-                    </li>
+                    <div class="indicator-row" role="row">
+                        <div role="cell">
+                            <strong>{{ feature.label }}</strong>
+                            <p>{{ indicator_explanation(feature.feature) }}</p>
+                        </div>
+                        <div class="indicator-impact" role="cell">
+                            <strong>+{{ feature.mae_increase_when_shuffled|round(2) }} points</strong>
+                            <span>extra average margin error when shuffled</span>
+                        </div>
+                    </div>
                     {% endfor %}
-                </ol>
+                </div>
+                <div class="indicator-notes">
+                    <div>
+                        <strong>Recent versus longer-term form</strong>
+                        <p>Recent measures give the newest match 30% weight, so their influence halves after about two games. Longer-term measures give it 12%, with a half-life of roughly five to six games.</p>
+                    </div>
+                    <div>
+                        <strong>Match-level margin influence</strong>
+                        <p>Open “Why this prediction?” on any match to see the estimated points each leading signal contributes toward one team in the model's linear component. These are model effects, not causal claims.</p>
+                    </div>
+                </div>
             </section>
             {% endif %}
         </main>

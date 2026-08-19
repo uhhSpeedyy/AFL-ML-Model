@@ -46,6 +46,33 @@ TEAM_COLOURS = {
     "Western Bulldogs": ("#1f53a0", "#d9283d"),
 }
 
+INDICATOR_EXPLANATIONS = {
+    "form_margin_long_diff": (
+        "Scoring margin from earlier matches, updated slowly so roughly the last "
+        "five to ten games describe sustained form rather than one result."
+    ),
+    "elo_diff": (
+        "An Elo-style rating that starts each club near 1500, adjusts for opponent "
+        "strength and result margin, and moves one-third toward average each season."
+    ),
+    "shots_short_diff": (
+        "Recent goals plus behinds. It measures how often a team creates a scoring "
+        "opportunity, regardless of whether those shots were converted."
+    ),
+    "xdefence_short_diff": (
+        "The expected score conceded from recent opposition chances. Lower values "
+        "indicate that a team is allowing fewer or lower-quality opportunities."
+    ),
+    "player_rating_diff": (
+        "Rolling AFL player-rating output for each club's most recent lineup, with "
+        "limited samples pulled toward a player's established rating."
+    ),
+    "inside50_long_diff": (
+        "Forward-50 entries across prior matches, updated slowly to capture sustained "
+        "territory and chance creation."
+    ),
+}
+
 
 def _team_initials(team: str) -> str:
     special = {
@@ -116,6 +143,10 @@ def create_app(settings: Settings | None = None) -> Flask:
             "team_colours": lambda team: TEAM_COLOURS.get(team, ("#26364a", "#f3f6f8")),
             "display_time": _display_time,
             "margin_phrase": _margin_phrase,
+            "indicator_explanation": lambda feature: INDICATOR_EXPLANATIONS.get(
+                feature,
+                "A pre-match team difference calculated only from earlier games.",
+            ),
         }
 
     @app.get("/")

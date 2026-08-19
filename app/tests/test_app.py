@@ -31,7 +31,14 @@ def test_homepage_and_health_render_snapshot(tmp_path):
                 "tip_accuracy": 0.6,
                 "margin_mae": 22.0,
                 "matches": 207,
-            }
+            },
+            "top_predictive_features": [
+                {
+                    "feature": "elo_diff",
+                    "label": "Team strength rating",
+                    "mae_increase_when_shuffled": 1.16,
+                }
+            ],
         },
         settings.report_path,
     )
@@ -44,6 +51,8 @@ def test_homepage_and_health_render_snapshot(tmp_path):
     assert b"By Sam Speed" in response.data
     assert b"Data-led weekly forecasts" not in response.data
     assert b"pre-match football indicators driving every call" not in response.data
+    assert b"Key prediction indicators" in response.data
+    assert b"extra average margin error when shuffled" in response.data
 
     health = client.get("/health")
     assert health.status_code == 200
