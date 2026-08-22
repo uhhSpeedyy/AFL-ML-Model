@@ -53,6 +53,8 @@ def test_landing_afl_and_health_render_snapshot(tmp_path):
     afl = client.get("/afl")
     assert afl.status_code == 200
     assert b"AFL Prediction Model" in afl.data
+    assert b'class="home-link" href="/"' in afl.data
+    assert b"Home</span>" in afl.data
     assert b"AFL ML" not in afl.data
     assert b"AFLML" not in afl.data
     assert b"By Sam Speed" in afl.data

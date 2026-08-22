@@ -15,7 +15,10 @@
     <div class="page-shell">
         <header class="hero">
             <nav class="topline" aria-label="Page summary">
-                <a class="brand-mark" href="/" aria-label="AFL Prediction Model — back to home">AFL</a>
+                <a class="home-link" href="/">
+                    <span aria-hidden="true">←</span>
+                    <span>Home</span>
+                </a>
                 <span class="round-pill">{{ payload.get('season', '2026') }} · {{ payload.get('round_name', 'Next round') }}</span>
             </nav>
             <div class="hero-copy">

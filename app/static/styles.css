@@ -44,16 +44,30 @@ a { color: inherit; text-underline-offset: 3px; }
   border-bottom: 1px solid var(--line);
 }
 
-.brand-mark {
-  color: inherit;
-  font-family: "Barlow Condensed", sans-serif;
-  font-size: 1.65rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+.home-link {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-decoration: none;
+  text-transform: uppercase;
 }
 
-.brand-mark span { color: var(--accent); }
+.home-link span:first-child {
+  font-size: 1rem;
+  transition: transform 180ms ease;
+}
+
+.home-link:hover span:first-child,
+.home-link:focus-visible span:first-child { transform: translateX(-3px); }
+
+.home-link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 6px;
+}
 
 .round-pill {
   padding: 9px 14px;
