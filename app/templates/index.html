@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Weekly AFL match predictions from Sam Speed's machine-learning model.">
-    <title>AFL ML Prediction Model</title>
+    <meta name="description" content="Weekly AFL match predictions by Sam Speed.">
+    <title>AFL Prediction Model</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,11 +15,11 @@
     <div class="page-shell">
         <header class="hero">
             <nav class="topline" aria-label="Page summary">
-                <a class="brand-mark" href="/" aria-label="AFLML — back to all models">AFL<span>ML</span></a>
+                <a class="brand-mark" href="/" aria-label="AFL Prediction Model — back to home">AFL</a>
                 <span class="round-pill">{{ payload.get('season', '2026') }} · {{ payload.get('round_name', 'Next round') }}</span>
             </nav>
             <div class="hero-copy">
-                <h1>AFL ML<br><span>Prediction Model</span></h1>
+                <h1>AFL<br><span>Prediction Model</span></h1>
                 <p class="byline">By Sam Speed</p>
             </div>
             {% if report.get('holdout_metrics') %}
@@ -85,7 +85,7 @@
                     <div class="prediction-details" id="details-{{ prediction.game_id }}" hidden>
                         <div class="details-intro">
                             <p>Strongest pre-match signals</p>
-                            <span>Recent matches only—no stats from this game are used.</span>
+                            <span>Based on pre-match data only.</span>
                         </div>
                         <div class="factor-list">
                             {% for factor in prediction.factors %}
@@ -108,7 +108,7 @@
                             </div>
                             {% endfor %}
                         </div>
-                        <p class="uncertainty-note">The forecast is probabilistic, not a certainty. Injuries, late changes and match-day conditions can move the result.</p>
+                        <p class="uncertainty-note">Injuries, team changes and conditions may affect the result.</p>
                     </div>
                 </article>
                 {% endfor %}
@@ -117,7 +117,7 @@
             <section class="empty-state">
                 <span aria-hidden="true">↻</span>
                 <h2>Next-round predictions are being prepared</h2>
-                <p>The fixture feed has no future round available yet. This page will update when the next games are confirmed.</p>
+                <p>Predictions will appear when the next games are confirmed.</p>
             </section>
             {% endif %}
 
@@ -126,7 +126,7 @@
                 <div class="indicators-heading">
                     <p class="section-kicker">How predictions are made</p>
                     <h2 id="indicators-title">Key prediction indicators</h2>
-                    <p>The model compares each team's pre-match values. The 2022 impact shows how much less accurate its margin predictions became when that indicator was shuffled. A larger increase means the indicator carried more useful information; it does not mean one unit directly adds that many points.</p>
+                    <p>The 2022 test impact is the extra average margin error after an indicator was shuffled. Higher means it was more useful to the model, not that it directly adds points.</p>
                 </div>
                 <div class="indicator-table" role="table" aria-label="Key prediction indicators and their 2022 validation impact">
                     <div class="indicator-table-head" role="row">
@@ -141,7 +141,7 @@
                         </div>
                         <div class="indicator-impact" role="cell">
                             <strong>+{{ feature.mae_increase_when_shuffled|round(2) }} points</strong>
-                            <span>extra average margin error when shuffled</span>
+                            <span>extra average error after shuffling</span>
                         </div>
                     </div>
                     {% endfor %}
@@ -149,11 +149,11 @@
                 <div class="indicator-notes">
                     <div>
                         <strong>Recent versus longer-term form</strong>
-                        <p>Recent measures give the newest match 30% weight, so their influence halves after about two games. Longer-term measures give it 12%, with a half-life of roughly five to six games.</p>
+                        <p>Recent form gives the newest match 30% weight. Longer-term form gives it 12%.</p>
                     </div>
                     <div>
                         <strong>Match-level margin influence</strong>
-                        <p>Open “Why this prediction?” on any match to see the estimated points each leading signal contributes toward one team in the model's linear component. These are model effects, not causal claims.</p>
+                        <p>Open “Why this prediction?” to see each leading signal's estimated margin influence. These are model effects, not causal claims.</p>
                     </div>
                 </div>
             </section>
@@ -162,10 +162,10 @@
 
         <footer>
             <div>
-                <strong>AFL ML Prediction Model</strong>
+                <strong>AFL Prediction Model</strong>
                 <span>By Sam Speed</span>
             </div>
-            <p>Data: <a href="https://www.wheeloratings.com/" rel="noreferrer">Wheelo Ratings</a> and <a href="https://api.squiggle.com.au/" rel="noreferrer">Squiggle</a>. Predictions stored via {{ storage_source }}. Model outputs are for analysis and entertainment, not betting advice.</p>
+            <p>Data: <a href="https://www.wheeloratings.com/" rel="noreferrer">Wheelo Ratings</a> and <a href="https://api.squiggle.com.au/" rel="noreferrer">Squiggle</a>. Stored via {{ storage_source }}. Not betting advice.</p>
             {% if payload.get('generated_at') %}<small>Updated {{ display_time(payload.generated_at) }} AEST · {{ payload.get('model_version', '') }}</small>{% endif %}
         </footer>
     </div>

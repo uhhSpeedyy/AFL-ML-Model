@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Add the books you love and get explainable recommendations grouped around your favourite themes and styles.">
+    <meta name="description" content="Add books you like and get personalised book recommendations.">
     <meta name="theme-color" content="#f4f0e7">
     <title>Book Recommender — Sam Speed</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,164 +13,126 @@
     <script src="{{ url_for('static', filename='books.js') }}" defer></script>
 </head>
 <body>
-    <a class="skip-link" href="#recommender">Skip to the recommender</a>
+    <a class="skip-link" href="#recommender">Skip to book search</a>
 
     <div class="books-shell">
         <header class="books-header">
-            <a class="back-link" href="/" aria-label="Back to all models">
+            <a class="back-link" href="/">
                 <span aria-hidden="true">←</span>
-                <span>All models</span>
+                <span>Home</span>
             </a>
-            <a class="books-wordmark" href="/books" aria-label="The Reading Room — book recommender home">
-                <span>The Reading Room</span>
-                <small>by Sam Speed</small>
+            <a class="books-wordmark" href="/books" aria-label="Book Recommender home">
+                <span>Book Recommender</span>
             </a>
-            <p class="model-label">Book model · v1</p>
         </header>
 
         <main id="recommender">
-            <section class="books-hero" aria-labelledby="books-title">
-                <p class="hero-kicker">An explainable book recommender</p>
-                <h1 id="books-title">Find the book that feels <em>next.</em></h1>
-                <div class="hero-note">
-                    <span aria-hidden="true">✦</span>
-                    <p>Start with books you already love. The model looks for their shared themes, style, length and era, then builds a few thoughtful shortlists—not one endless ranking.</p>
-                </div>
-            </section>
-
             <form class="recommendation-form" id="recommendation-form" novalidate>
                 <section class="builder-section" aria-labelledby="shelf-title">
-                    <div class="section-number" aria-hidden="true">01</div>
                     <div class="section-content">
                         <div class="section-title-row">
-                            <div>
-                                <p class="section-kicker">Build your shelf</p>
-                                <h2 id="shelf-title">Which books have stayed with you?</h2>
-                            </div>
+                            <h1 id="shelf-title">Add books you like</h1>
                             <p class="selection-count" id="selection-count"><strong>0</strong> / 10 selected</p>
                         </div>
 
                         <div class="search-wrap">
-                            <label for="book-search">Search by title or author</label>
-                            <div class="search-field">
-                                <span class="search-icon" aria-hidden="true"></span>
-                                <input
-                                    id="book-search"
-                                    name="book-search"
-                                    type="search"
-                                    role="combobox"
-                                    aria-autocomplete="list"
-                                    aria-expanded="false"
-                                    aria-controls="book-suggestions"
-                                    autocomplete="off"
-                                    maxlength="120"
-                                    spellcheck="false"
-                                    placeholder="Try ‘The Lord of the Rings’"
-                                >
-                                <span class="search-progress" id="search-progress" aria-hidden="true"></span>
+                            <label for="book-search">Book title or author</label>
+                            <div class="search-controls">
+                                <div class="search-input-wrap">
+                                    <span class="search-icon" aria-hidden="true"></span>
+                                    <input
+                                        id="book-search"
+                                        name="book-search"
+                                        type="search"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-expanded="false"
+                                        aria-controls="book-suggestions"
+                                        autocomplete="off"
+                                        maxlength="120"
+                                        spellcheck="false"
+                                        placeholder="Search books"
+                                    >
+                                    <span class="search-progress" id="search-progress" aria-hidden="true"></span>
+                                    <div class="suggestions" id="book-suggestions" role="listbox" aria-label="Book suggestions" hidden></div>
+                                </div>
+                                <button class="recommend-button" id="recommend-button" type="submit" disabled>
+                                    <span>Recommend books</span>
+                                    <span aria-hidden="true">→</span>
+                                </button>
                             </div>
-                            <div class="suggestions" id="book-suggestions" role="listbox" aria-label="Book suggestions" hidden></div>
-                            <p class="search-hint">Choose the exact book from the list. Three to five favourites usually gives the richest mix.</p>
+                            <p class="search-hint">Select a result to add it.</p>
                             <p class="search-status" id="search-status" role="status" aria-live="polite"></p>
                         </div>
 
                         <div class="selected-heading">
-                            <h3>Your favourites</h3>
-                            <button class="clear-button" id="clear-favourites" type="button" hidden>Clear shelf</button>
+                            <h2>Selected books</h2>
+                            <button class="clear-button" id="clear-favourites" type="button" hidden>Clear</button>
                         </div>
                         <div class="favourites-grid" id="favourites-grid" aria-live="polite">
                             <div class="empty-shelf" id="empty-shelf">
-                                <span aria-hidden="true">01</span>
-                                <p>Your first favourite will appear here.</p>
+                                <p>No books selected.</p>
                             </div>
                         </div>
-                    </div>
-                </section>
 
-                <section class="builder-section preference-section" aria-labelledby="preferences-title">
-                    <div class="section-number" aria-hidden="true">02</div>
-                    <div class="section-content">
-                        <div class="section-title-row">
-                            <div>
-                                <p class="section-kicker">Tune the search</p>
-                                <h2 id="preferences-title">What are you in the mood for?</h2>
+                        <details class="preferences-panel">
+                            <summary>Options</summary>
+                            <div class="preference-grid">
+                                <fieldset>
+                                    <legend>Era</legend>
+                                    <div class="segmented-options">
+                                        <label><input type="radio" name="era" value="balanced" checked><span>Balanced</span></label>
+                                        <label><input type="radio" name="era" value="modern"><span>Modern</span></label>
+                                        <label><input type="radio" name="era" value="classics"><span>Classics</span></label>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend>Length</legend>
+                                    <div class="segmented-options">
+                                        <label><input type="radio" name="length" value="similar" checked><span>Similar</span></label>
+                                        <label><input type="radio" name="length" value="any"><span>Any</span></label>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend>Discovery</legend>
+                                    <div class="segmented-options">
+                                        <label><input type="radio" name="discovery" value="balanced" checked><span>Balanced</span></label>
+                                        <label><input type="radio" name="discovery" value="familiar"><span>Familiar</span></label>
+                                        <label><input type="radio" name="discovery" value="adventurous"><span>Adventurous</span></label>
+                                    </div>
+                                </fieldset>
                             </div>
-                            <p class="optional-label">Optional · defaults work well</p>
-                        </div>
-
-                        <div class="preference-grid">
-                            <fieldset>
-                                <legend>Publication era</legend>
-                                <p>How far back should we look?</p>
-                                <div class="segmented-options">
-                                    <label><input type="radio" name="era" value="balanced" checked><span>Balanced</span></label>
-                                    <label><input type="radio" name="era" value="modern"><span>Mostly modern</span></label>
-                                    <label><input type="radio" name="era" value="classics"><span>More classics</span></label>
-                                </div>
-                            </fieldset>
-
-                            <fieldset>
-                                <legend>Book length</legend>
-                                <p>Keep the reading commitment familiar?</p>
-                                <div class="segmented-options">
-                                    <label><input type="radio" name="length" value="similar" checked><span>Similar length</span></label>
-                                    <label><input type="radio" name="length" value="any"><span>Any length</span></label>
-                                </div>
-                            </fieldset>
-
-                            <fieldset>
-                                <legend>Discovery level</legend>
-                                <p>How far should the model roam?</p>
-                                <div class="segmented-options">
-                                    <label><input type="radio" name="discovery" value="balanced" checked><span>Balanced</span></label>
-                                    <label><input type="radio" name="discovery" value="familiar"><span>Familiar</span></label>
-                                    <label><input type="radio" name="discovery" value="adventurous"><span>Adventurous</span></label>
-                                </div>
-                            </fieldset>
-                        </div>
+                        </details>
                     </div>
-                </section>
-
-                <section class="submit-section">
-                    <div>
-                        <p class="submit-eyebrow">Your shelf is ready</p>
-                        <p>The model uses book metadata from Open Library. It never needs a paid AI service or an account.</p>
-                    </div>
-                    <button class="recommend-button" id="recommend-button" type="submit" disabled>
-                        <span>Build my shortlists</span>
-                        <span aria-hidden="true">→</span>
-                    </button>
                 </section>
             </form>
 
             <section class="loading-panel" id="loading-panel" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="loading-title" hidden>
                 <div class="loading-orbit" aria-hidden="true"><span></span></div>
                 <div>
-                    <p class="section-kicker">Reading between the lines</p>
-                    <h2 id="loading-title">Building your shortlists…</h2>
-                    <p>Comparing themes, style, era and length across your favourite books.</p>
+                    <h2 id="loading-title">Finding recommendations…</h2>
                 </div>
             </section>
 
             <section class="error-panel" id="error-panel" role="alert" hidden>
-                <p class="section-kicker">Something interrupted the search</p>
-                <h2>We couldn’t finish that shortlist.</h2>
-                <p id="error-message">Please try again in a moment.</p>
+                <h2>Couldn’t load recommendations.</h2>
+                <p id="error-message">Please try again.</p>
                 <button id="retry-button" type="button">Try again</button>
             </section>
 
             <section class="results" id="results" aria-labelledby="results-title" tabindex="-1" hidden>
                 <header class="results-header">
-                    <p class="results-overline">Your reading profile</p>
-                    <h2 id="results-title">A few directions for what comes next</h2>
+                    <h2 id="results-title">Recommendations</h2>
                     <p class="profile-summary" id="profile-summary"></p>
                     <div class="profile-signals">
                         <div id="profile-themes-wrap" hidden>
-                            <span>Recurring themes</span>
+                            <span>Themes</span>
                             <div class="signal-list" id="profile-themes"></div>
                         </div>
                         <div id="profile-styles-wrap" hidden>
-                            <span>Style signals</span>
+                            <span>Style</span>
                             <div class="signal-list" id="profile-styles"></div>
                         </div>
                     </div>
@@ -180,19 +142,19 @@
 
                 <footer class="results-note">
                     <span aria-hidden="true">i</span>
-                    <p>These are similarity-based suggestions, not certainties. Themes and style signals depend on the metadata available for each book.</p>
+                    <p>Suggestions depend on the book data available.</p>
                 </footer>
             </section>
         </main>
 
         <footer class="books-footer">
-            <a href="/">Sam Speed · Applied ML</a>
-            <p>Book metadata and covers from <a href="https://openlibrary.org/" rel="noreferrer">Open Library</a>.</p>
+            <a href="/">Sam Speed</a>
+            <p>Data from <a href="https://openlibrary.org/" rel="noreferrer">Open Library</a>.</p>
         </footer>
     </div>
 
     <noscript>
-        <div class="noscript-message">This recommender needs JavaScript to search for books and build your shortlists.</div>
+        <div class="noscript-message">JavaScript is required to get recommendations.</div>
     </noscript>
 </body>
 </html>

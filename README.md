@@ -1,11 +1,11 @@
-# Sam Speed — Applied ML
+# Sam Speed's models
 
-Two explainable models in one Flask application, served from the same Azure App Service:
+Two models run in one Flask application:
 
 - an AFL outcome and margin model; and
 - a personalised, metadata-based book recommender.
 
-The landing page at [sam-speed.azurewebsites.net](https://sam-speed.azurewebsites.net/) lets a visitor choose either experience. The AFL dashboard lives at `/afl`; the reading experience lives at `/books`.
+Choose a model at [sam-speed.azurewebsites.net](https://sam-speed.azurewebsites.net/). AFL predictions are at `/afl`; book recommendations are at `/books`.
 
 ## AFL model
 
@@ -20,7 +20,7 @@ The full reproducible evaluation and feature-importance output is stored in `app
 
 ## Book recommender
 
-The book model is an unsupervised, content-based recommender. A visitor searches for up to ten favourite works, and the model builds a taste profile from:
+The content-based book recommender uses up to ten favourite books and compares:
 
 - normalised themes and detailed Open Library subjects;
 - metadata-derived writing-style proxies;
@@ -29,15 +29,17 @@ The book model is an unsupervised, content-based recommender. A visitor searches
 - publication era and language; and
 - bounded reader-interest evidence, used as a quality prior rather than a substitute for similarity.
 
-The ranking balances those signals, excludes books already selected, limits repeated authors, and applies diversity penalties. It returns one balanced shortlist plus up to three shortlists grounded in the favourite shelf's strongest themes. Every recommendation includes plain-language reasons; no unsupported match percentage is presented as a probability.
+It excludes selected books, limits repeated authors and returns one main list plus up to three theme lists. Each recommendation explains why it matched.
 
-Open Library does not expose enough information to measure prose style directly, and its public ratings do not provide the user-level outcomes needed for collaborative filtering. The UI therefore labels style as a metadata-derived proxy. A future opt-in feedback loop could train a personal reranker once genuine like/dislike outcomes exist.
+Recommendations stay in the favourites' language. Missing language data defaults to English, and English edition titles are used where available.
 
-Search and candidate discovery use the official [Open Library Search API](https://openlibrary.org/dev/docs/api/search) with an explicit field projection, bounded results, timeouts, retries, an in-memory six-hour cache, and a polite process-wide request interval. A curated local catalogue keeps search and recommendations useful during an upstream outage. Set `OPEN_LIBRARY_CONTACT` to a monitored contact email in the deployment environment to identify regular API traffic; otherwise the client stays within the default one-request-per-second guidance.
+Open Library does not provide prose-level style data or user-level ratings. Style is therefore an estimate based on metadata.
+
+Search uses the [Open Library Search API](https://openlibrary.org/dev/docs/api/search) with bounded results, timeouts, retries, caching and rate limiting. A local catalogue is used if Open Library is unavailable. Set `OPEN_LIBRARY_CONTACT` to a monitored email to identify API traffic.
 
 ## Data
 
-The prototype uses public derived match/team/player data from [Wheelo Ratings](https://www.wheeloratings.com/) and fixtures/results from the documented [Squiggle API](https://api.squiggle.com.au/). Requests are server-side, identifiable, cached, and low volume. The application publishes model outputs and explanations, not a copy of either source dataset.
+The AFL model uses derived match, team and player data from [Wheelo Ratings](https://www.wheeloratings.com/) and fixtures/results from the [Squiggle API](https://api.squiggle.com.au/). Requests are server-side, cached and low volume.
 
 Before treating the scheduled Wheelo ingestion as a long-term public production feed, obtain written confirmation that this automated derived use is acceptable. AFL Tables and the fitzRoy/TORP datasets are documented fallback and validation sources.
 

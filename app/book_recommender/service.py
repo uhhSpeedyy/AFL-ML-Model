@@ -20,7 +20,13 @@ from .open_library import OpenLibraryClient, OpenLibraryUnavailable
 
 
 class _SearchClient(Protocol):
-    def search(self, query: str, *, limit: int = 8) -> list[dict[str, Any]]: ...
+    def search(
+        self,
+        query: str,
+        *,
+        limit: int = 8,
+        language: str | None = "eng",
+    ) -> list[dict[str, Any]]: ...
 
 
 THEME_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -75,6 +81,113 @@ THEME_SEARCH_TERMS = {
 LENGTH_BUCKETS = ("Short", "Medium", "Long", "Epic")
 ERA_BUCKETS = ("Classic", "Post-war", "Modern", "Contemporary")
 
+# Open Library normally returns ISO 639 codes, but older records also contain
+# two-letter codes, bibliographic aliases and spelled-out language names. Keep
+# one canonical code per language so an English work cannot accidentally match
+# a Chinese-only candidate because their raw metadata happens to be noisy.
+LANGUAGE_ALIASES = {
+    "ar": "ara",
+    "ara": "ara",
+    "arabic": "ara",
+    "bn": "ben",
+    "ben": "ben",
+    "bengali": "ben",
+    "cat": "cat",
+    "catalan": "cat",
+    "ca": "cat",
+    "chi": "zho",
+    "chinese": "zho",
+    "cmn": "zho",
+    "mandarin": "zho",
+    "zh": "zho",
+    "zho": "zho",
+    "cs": "ces",
+    "cze": "ces",
+    "ces": "ces",
+    "czech": "ces",
+    "da": "dan",
+    "dan": "dan",
+    "danish": "dan",
+    "de": "deu",
+    "deu": "deu",
+    "ger": "deu",
+    "german": "deu",
+    "nl": "nld",
+    "nld": "nld",
+    "dut": "nld",
+    "dutch": "nld",
+    "el": "ell",
+    "ell": "ell",
+    "gre": "ell",
+    "greek": "ell",
+    "en": "eng",
+    "eng": "eng",
+    "english": "eng",
+    "es": "spa",
+    "spa": "spa",
+    "spanish": "spa",
+    "castilian": "spa",
+    "fi": "fin",
+    "fin": "fin",
+    "finnish": "fin",
+    "fr": "fra",
+    "fra": "fra",
+    "fre": "fra",
+    "french": "fra",
+    "he": "heb",
+    "heb": "heb",
+    "hebrew": "heb",
+    "hi": "hin",
+    "hin": "hin",
+    "hindi": "hin",
+    "id": "ind",
+    "ind": "ind",
+    "indonesian": "ind",
+    "it": "ita",
+    "ita": "ita",
+    "italian": "ita",
+    "ja": "jpn",
+    "jpn": "jpn",
+    "japanese": "jpn",
+    "ko": "kor",
+    "kor": "kor",
+    "korean": "kor",
+    "la": "lat",
+    "lat": "lat",
+    "latin": "lat",
+    "no": "nor",
+    "nor": "nor",
+    "norwegian": "nor",
+    "pl": "pol",
+    "pol": "pol",
+    "polish": "pol",
+    "pt": "por",
+    "por": "por",
+    "portuguese": "por",
+    "ru": "rus",
+    "rus": "rus",
+    "russian": "rus",
+    "sv": "swe",
+    "swe": "swe",
+    "swedish": "swe",
+    "th": "tha",
+    "tha": "tha",
+    "thai": "tha",
+    "tr": "tur",
+    "tur": "tur",
+    "turkish": "tur",
+    "uk": "ukr",
+    "ukr": "ukr",
+    "ukrainian": "ukr",
+    "ur": "urd",
+    "urd": "urd",
+    "urdu": "urd",
+    "vi": "vie",
+    "vie": "vie",
+    "vietnamese": "vie",
+}
+UNKNOWN_LANGUAGE_CODES = frozenset({"mis", "mul", "und", "unknown", "unspecified", "zxx"})
+
 
 @dataclass(frozen=True)
 class _Features:
@@ -124,6 +237,73 @@ def _strings(value: Any, *, maximum: int = 80) -> list[str]:
     return result
 
 
+def _canonical_language(value: Any) -> str | None:
+    key = _text_key(value)
+    if not key:
+        return None
+    if key.startswith("languages "):
+        key = key.removeprefix("languages ").strip()
+    if key in UNKNOWN_LANGUAGE_CODES:
+        return None
+    if key in LANGUAGE_ALIASES:
+        return LANGUAGE_ALIASES[key]
+    # Accommodate BCP-47 values such as ``en-US`` and labels such as
+    # ``English (eng)`` without treating arbitrary prose as a language.
+    for token in key.split():
+        if token in UNKNOWN_LANGUAGE_CODES:
+            continue
+        if token in LANGUAGE_ALIASES:
+            return LANGUAGE_ALIASES[token]
+    return key if len(key) <= 40 else None
+
+
+def _language_codes(value: Any, *, maximum: int = 12) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for raw in _strings(value, maximum=maximum):
+        # Some imported records store several codes in a single field.
+        parts = re.split(r"[,;|]+", raw)
+        for part in parts:
+            code = _canonical_language(part)
+            if code and code not in seen:
+                seen.add(code)
+                result.append(code)
+            if len(result) >= maximum:
+                return result
+    return result
+
+
+def _uses_only_latin_letters(value: str) -> bool:
+    found_letter = False
+    for character in value:
+        if not unicodedata.category(character).startswith("L"):
+            continue
+        found_letter = True
+        if "LATIN" not in unicodedata.name(character, ""):
+            return False
+    return found_letter
+
+
+def _english_author_names(
+    authors: list[str],
+    languages: list[str],
+) -> list[str]:
+    """Prefer readable Latin-script names for English records.
+
+    Open Library work searches can return translated aliases as if they were
+    separate authors (including with duplicate author keys). Keeping every
+    Latin-script name preserves normal co-author records while removing those
+    obvious display aliases. If no Latin form exists, the original names stay.
+    """
+
+    if languages and "eng" not in languages:
+        return authors
+    latin_names = [name for name in authors if _uses_only_latin_letters(name)]
+    if not latin_names or len(latin_names) == len(authors):
+        return authors
+    return latin_names
+
+
 def _integer(value: Any) -> int | None:
     try:
         if value is None or isinstance(value, bool):
@@ -158,10 +338,13 @@ def _normalize_book(raw: Mapping[str, Any], *, source: str) -> dict[str, Any] | 
         key = f"/works/{key.upper()}"
     if not (key.startswith("/works/") or key.startswith("/local/books/")):
         return None
-    authors = _strings(raw.get("author_name"), maximum=12)
     author_keys = _strings(raw.get("author_key"), maximum=12)
+    languages = _language_codes(raw.get("language"), maximum=12)
+    authors = _english_author_names(
+        _strings(raw.get("author_name"), maximum=12),
+        languages,
+    )
     subjects = _strings(raw.get("subject"), maximum=80)
-    languages = [value.casefold() for value in _strings(raw.get("language"), maximum=12)]
     first_sentences = _strings(raw.get("first_sentence"), maximum=4)
     cover_id = _integer(raw.get("cover_i"))
     curated_popularity = _number(raw.get("_curated_popularity"))
@@ -302,7 +485,7 @@ def _classify(book: Mapping[str, Any]) -> _Features:
         length=_length_bucket(pages),
         era=_era_bucket(_integer(book.get("first_publish_year"))),
         authors=authors,
-        languages=frozenset(str(value).casefold() for value in book.get("language", [])),
+        languages=frozenset(_language_codes(book.get("language"), maximum=12)),
     )
 
 
@@ -503,10 +686,13 @@ class BookRecommendationService:
         excluded_themes = _canonical_themes(options.get("exclude_themes"))
         allow_same_author = bool(options.get("allow_same_author", True))
         favourite_authors = set(profile["author_weights"])
+        target_languages = set(profile["target_languages"])
         eligible: list[dict[str, Any]] = []
         for book in candidates:
             features = _classify(book)
             if book["key"] in selected_keys or _book_signature(book) in selected_signatures:
+                continue
+            if target_languages and not (target_languages & features.languages):
                 continue
             if excluded_themes & features.themes:
                 continue
@@ -671,7 +857,8 @@ class BookRecommendationService:
         length_counts: Counter[str] = Counter()
         era_counts: Counter[str] = Counter()
         author_counts: Counter[str] = Counter()
-        language_counts: Counter[str] = Counter()
+        observed_language_counts: Counter[str] = Counter()
+        favourite_language_sets: list[frozenset[str]] = []
         theme_sources: defaultdict[str, list[str]] = defaultdict(list)
         known_pages: list[int] = []
         display_authors: dict[str, str] = {}
@@ -694,7 +881,8 @@ class BookRecommendationService:
                 if key:
                     author_counts[key] += 1
                     display_authors.setdefault(key, raw_author)
-            language_counts.update(features.languages)
+            favourite_language_sets.append(features.languages)
+            observed_language_counts.update(features.languages)
             pages = _integer(book.get("number_of_pages_median"))
             if pages and pages > 0:
                 known_pages.append(pages)
@@ -715,9 +903,31 @@ class BookRecommendationService:
         ]
         for preferred_era in preferred_eras:
             era_counts[preferred_era] += 2 / len(preferred_eras)
-        requested_language = _strings(options.get("language"), maximum=1)
-        if requested_language:
-            language_counts[requested_language[0].casefold()] += 2
+        requested_languages = _language_codes(options.get("language"), maximum=4)
+        if requested_languages:
+            target_languages = tuple(requested_languages)
+        elif any(not languages for languages in favourite_language_sets) or any(
+            "eng" in languages for languages in favourite_language_sets
+        ):
+            # Missing edition metadata defaults to English for this English UI.
+            target_languages = ("eng",)
+        elif observed_language_counts:
+            strongest = max(observed_language_counts.values())
+            target_languages = tuple(
+                sorted(
+                    language
+                    for language, count in observed_language_counts.items()
+                    if count == strongest
+                )
+            )
+        else:
+            target_languages = ("eng",)
+        language_counts = Counter(
+            {
+                language: max(1, observed_language_counts.get(language, 0))
+                for language in target_languages
+            }
+        )
         author_emphasis = max(1.0, min(_number(options.get("author_emphasis")) or 1.0, 2.0))
 
         return {
@@ -733,6 +943,7 @@ class BookRecommendationService:
             "era_weights": _normalized_counter(era_counts, ERA_BUCKETS),
             "author_weights": _normalized_counter(author_counts),
             "language_weights": _normalized_counter(language_counts),
+            "target_languages": target_languages,
             "theme_sources": {
                 theme: list(dict.fromkeys(titles))
                 for theme, titles in sorted(theme_sources.items())
@@ -747,9 +958,21 @@ class BookRecommendationService:
         if not top_themes:
             return []
         terms = [THEME_SEARCH_TERMS[theme] for theme in top_themes]
-        query = " OR ".join(f'subject:\"{term}\"' for term in terms)
+        theme_query = " OR ".join(f'subject:\"{term}\"' for term in terms)
+        target_languages = list(profile.get("target_languages", ()))
+        if target_languages:
+            language_query = " OR ".join(
+                f"language:{language}" for language in target_languages
+            )
+            query = f"({theme_query}) AND ({language_query})"
+        else:
+            query = theme_query
         try:
-            documents = self.client.search(query, limit=self.remote_candidate_limit)
+            documents = self.client.search(
+                query,
+                limit=self.remote_candidate_limit,
+                language=target_languages[0] if target_languages else "eng",
+            )
         except OpenLibraryUnavailable:
             return []
         return [

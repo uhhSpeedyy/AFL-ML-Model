@@ -128,9 +128,59 @@ def test_open_library_client_identifies_retries_projects_fields_and_caches():
     assert session.calls[0]["timeout"] == (2.5, 5.0)
     assert session.calls[0]["params"]["fields"] == ",".join(SEARCH_FIELDS)
     assert session.calls[0]["params"]["q"] == "test book"
+    assert session.calls[0]["params"]["lang"] == "en"
     assert "Sam-Speed-Book-Recommender" in session.headers["User-Agent"]
     assert sleeps == [0.25]
     assert second[0]["title"] == "A Test Book"
+
+
+def test_open_library_uses_matching_edition_title_for_requested_language():
+    work = {
+        "key": "/works/OLWITCHERW",
+        "title": "Wieża jaskółki",
+        "language": ["pol", "eng", "fre"],
+        "editions": {
+            "docs": [
+                {
+                    "key": "/books/OLPOLM",
+                    "title": "Wieża jaskółki",
+                    "language": ["pol"],
+                },
+                {
+                    "key": "/books/OLENM",
+                    "title": "The Tower of the Swallow",
+                    "language": ["eng"],
+                },
+                {
+                    "key": "/books/OLFRM",
+                    "title": "La Tour de l'Hirondelle",
+                    "language": ["fra"],
+                },
+            ]
+        },
+    }
+    session = _Session(
+        [
+            _Response(200, {"docs": [work]}),
+            _Response(200, {"docs": [work]}),
+        ]
+    )
+    client = OpenLibraryClient(
+        session=session,  # type: ignore[arg-type]
+        retries=0,
+        min_request_interval=0,
+    )
+
+    english = client.search("witcher", language="eng")
+    french = client.search("witcher", language="fra")
+
+    assert english[0]["key"] == "/works/OLWITCHERW"
+    assert english[0]["title"] == "The Tower of the Swallow"
+    assert french[0]["key"] == "/works/OLWITCHERW"
+    assert french[0]["title"] == "La Tour de l'Hirondelle"
+    assert session.calls[0]["params"]["lang"] == "en"
+    assert session.calls[1]["params"]["lang"] == "fr"
+    assert "editions.title" in session.calls[0]["params"]["fields"]
 
 
 def test_open_library_client_observes_the_default_public_rate_limit():
@@ -277,6 +327,134 @@ def test_search_normalizes_open_library_work_keys_and_returns_json_data():
     assert payload["results"][0]["key"] == "/works/OL123W"
     assert payload["results"][0]["open_library_url"] == "https://openlibrary.org/works/OL123W"
     json.dumps(payload, allow_nan=False)
+
+
+def test_search_canonicalizes_languages_and_removes_translated_author_aliases():
+    class _AuthorAliasClient:
+        def search(self, query: str, *, limit: int = 8) -> list[dict[str, Any]]:
+            return [
+                {
+                    "key": "OL777W",
+                    "title": "Dune",
+                    "author_name": ["Frank Herbert", "Френк Герберт"],
+                    # Live Open Library data currently attaches two keys to
+                    # these two display aliases even though this is one author.
+                    "author_key": ["OL123A", "OL999A"],
+                    "language": ["English", "/languages/eng", "zh-CN", "und"],
+                },
+                {
+                    "key": "OL778W",
+                    "title": "A Real Collaboration",
+                    "author_name": ["Alice Smith", "Bob Jones", "Боб Джонс"],
+                    "author_key": ["OL1A", "OL2A"],
+                    "language": ["eng"],
+                },
+            ]
+
+    service = BookRecommendationService(client=_AuthorAliasClient(), catalogue=[])
+
+    dune = service.search("Dune", limit=2)["results"][0]
+    collaboration = service.search("Collaboration", limit=2)["results"][1]
+
+    assert dune["author_name"] == ["Frank Herbert"]
+    assert dune["language"] == ["eng", "zho"]
+    assert collaboration["author_name"] == ["Alice Smith", "Bob Jones"]
+
+
+def test_recommendations_strictly_match_english_with_noisy_language_metadata():
+    catalogue = [
+        {
+            "key": "/local/books/english",
+            "title": "English Candidate",
+            "author_name": ["English Author"],
+            "subject": ["Science fiction"],
+            "language": ["en-US", "English", "und"],
+        },
+        {
+            "key": "/local/books/multilingual",
+            "title": "English Translation Available",
+            "author_name": ["Another Author"],
+            "subject": ["Science fiction"],
+            "language": ["chi", "eng"],
+        },
+        {
+            "key": "/local/books/chinese",
+            "title": "Chinese Only",
+            "author_name": ["中文作者"],
+            "subject": ["Science fiction"],
+            "language": ["Chinese", "/languages/zho"],
+        },
+        {
+            "key": "/local/books/unknown",
+            "title": "Unknown Language",
+            "author_name": ["Unknown Author"],
+            "subject": ["Science fiction"],
+        },
+    ]
+    service = BookRecommendationService(
+        client=_NoNetworkClient(),
+        catalogue=catalogue,
+        remote_recommendations=False,
+    )
+    noisy_english_favourite = {
+        **DUNE,
+        "language": ["English", "/languages/eng", "zh-CN", "und"],
+    }
+
+    payload = service.recommend(
+        [noisy_english_favourite],
+        {"shortlist_size": 6, "theme_list_count": 0},
+    )
+    books = payload["shortlists"][0]["books"]
+
+    assert {book["title"] for book in books} == {
+        "English Candidate",
+        "English Translation Available",
+    }
+    assert all("eng" in book["language"] for book in books)
+
+
+def test_missing_favourite_language_defaults_to_english_but_known_foreign_does_not():
+    catalogue = [
+        {
+            "key": "/local/books/english-one",
+            "title": "English One",
+            "author_name": ["One Author"],
+            "subject": ["Fantasy"],
+            "language": ["eng"],
+        },
+        {
+            "key": "/local/books/chinese-one",
+            "title": "中文一",
+            "author_name": ["作者一"],
+            "subject": ["Fantasy"],
+            "language": ["chi"],
+        },
+    ]
+    service = BookRecommendationService(
+        client=_NoNetworkClient(),
+        catalogue=catalogue,
+        remote_recommendations=False,
+    )
+    favourite = {
+        "key": "/works/OLFAVW",
+        "title": "Favourite",
+        "author_name": ["Favourite Author"],
+        "subject": ["Fantasy"],
+    }
+
+    defaulted = service.recommend([favourite], {"theme_list_count": 0})
+    chinese = service.recommend(
+        [{**favourite, "language": ["zh-Hant"]}],
+        {"theme_list_count": 0},
+    )
+
+    assert [book["title"] for book in defaulted["shortlists"][0]["books"]] == [
+        "English One"
+    ]
+    assert [book["title"] for book in chinese["shortlists"][0]["books"]] == [
+        "中文一"
+    ]
 
 
 def test_recommendations_are_deterministic_explainable_and_exclude_inputs():

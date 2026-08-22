@@ -37,7 +37,93 @@ SEARCH_FIELDS = (
     "already_read_count",
     "cover_i",
     "first_sentence",
+    "editions",
+    "editions.key",
+    "editions.title",
+    "editions.language",
 )
+
+LANGUAGE_PARAMS = {
+    "ara": "ar",
+    "cat": "ca",
+    "ces": "cs",
+    "dan": "da",
+    "deu": "de",
+    "ell": "el",
+    "eng": "en",
+    "fin": "fi",
+    "fra": "fr",
+    "heb": "he",
+    "hin": "hi",
+    "ind": "id",
+    "ita": "it",
+    "jpn": "ja",
+    "kor": "ko",
+    "nld": "nl",
+    "nor": "no",
+    "pol": "pl",
+    "por": "pt",
+    "rus": "ru",
+    "spa": "es",
+    "swe": "sv",
+    "tha": "th",
+    "tur": "tr",
+    "ukr": "uk",
+    "urd": "ur",
+    "vie": "vi",
+    "zho": "zh",
+}
+
+
+def _language_param(value: str | None) -> str | None:
+    normalized = str(value or "").strip().casefold().replace("_", "-")
+    if not normalized:
+        return None
+    base = normalized.split("-", 1)[0]
+    return LANGUAGE_PARAMS.get(base, base if len(base) in (2, 3) else None)
+
+
+def _edition_documents(document: dict[str, Any]) -> list[dict[str, Any]]:
+    editions = document.get("editions")
+    if isinstance(editions, dict):
+        editions = editions.get("docs")
+    if not isinstance(editions, list):
+        return []
+    return [edition for edition in editions if isinstance(edition, dict)]
+
+
+def _language_ranked_document(
+    document: dict[str, Any],
+    language: str | None,
+) -> dict[str, Any]:
+    """Use the first edition title matching the requested display language."""
+
+    language_param = _language_param(language)
+    if language_param is None:
+        return document
+    aliases = {language_param}
+    aliases.update(
+        code for code, parameter in LANGUAGE_PARAMS.items() if parameter == language_param
+    )
+    for edition in _edition_documents(document):
+        raw_languages = edition.get("language")
+        if isinstance(raw_languages, str):
+            edition_languages = [raw_languages]
+        elif isinstance(raw_languages, list):
+            edition_languages = raw_languages
+        else:
+            edition_languages = []
+        normalized_languages = {
+            str(value).strip().casefold().removeprefix("/languages/")
+            for value in edition_languages
+            if isinstance(value, str)
+        }
+        title = edition.get("title")
+        if aliases & normalized_languages and isinstance(title, str) and title.strip():
+            localized = dict(document)
+            localized["title"] = title
+            return localized
+    return document
 
 
 class OpenLibraryUnavailable(RuntimeError):
@@ -106,13 +192,19 @@ class OpenLibraryClient:
                 "Accept": "application/json",
             }
         )
-        self._cache: OrderedDict[tuple[str, int], _CacheEntry] = OrderedDict()
+        self._cache: OrderedDict[tuple[str, int, str], _CacheEntry] = OrderedDict()
         self._lock = threading.RLock()
         self._flight_lock = threading.Lock()
         self._rate_lock = threading.Lock()
         self._last_request_at: float | None = None
 
-    def search(self, query: str, *, limit: int = 8) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        *,
+        limit: int = 8,
+        language: str | None = "eng",
+    ) -> list[dict[str, Any]]:
         """Return raw Search API documents for ``query``.
 
         ``limit`` is capped to prevent a public web request from producing an
@@ -124,7 +216,8 @@ class OpenLibraryClient:
         if not normalized_query:
             return []
         bounded_limit = max(1, min(int(limit), 100))
-        cache_key = (normalized_query.casefold(), bounded_limit)
+        language_param = _language_param(language) or ""
+        cache_key = (normalized_query.casefold(), bounded_limit, language_param)
         cached_documents = self._cached_documents(cache_key)
         if cached_documents is not None:
             return cached_documents
@@ -137,11 +230,19 @@ class OpenLibraryClient:
             cached_documents = self._cached_documents(cache_key)
             if cached_documents is not None:
                 return cached_documents
-            return self._fetch_documents(normalized_query, bounded_limit, cache_key)
+            return self._fetch_documents(
+                normalized_query,
+                bounded_limit,
+                cache_key,
+                language_param,
+            )
         finally:
             self._flight_lock.release()
 
-    def _cached_documents(self, cache_key: tuple[str, int]) -> list[dict[str, Any]] | None:
+    def _cached_documents(
+        self,
+        cache_key: tuple[str, int, str],
+    ) -> list[dict[str, Any]] | None:
         now = self.clock()
         with self._lock:
             cached = self._cache.get(cache_key)
@@ -156,13 +257,16 @@ class OpenLibraryClient:
         self,
         normalized_query: str,
         bounded_limit: int,
-        cache_key: tuple[str, int],
+        cache_key: tuple[str, int, str],
+        language_param: str,
     ) -> list[dict[str, Any]]:
         params = {
             "q": normalized_query,
             "fields": ",".join(SEARCH_FIELDS),
             "limit": bounded_limit,
         }
+        if language_param:
+            params["lang"] = language_param
         last_error: Exception | None = None
         for attempt in range(self.retries + 1):
             try:
@@ -184,7 +288,11 @@ class OpenLibraryClient:
                 documents = payload.get("docs")
                 if not isinstance(documents, list):
                     raise ValueError("Open Library response did not contain a docs list")
-                clean_documents = [item for item in documents if isinstance(item, dict)]
+                clean_documents = [
+                    _language_ranked_document(item, language_param)
+                    for item in documents
+                    if isinstance(item, dict)
+                ]
                 with self._lock:
                     self._cache[cache_key] = _CacheEntry(
                         expires_at=self.clock() + self.cache_ttl_seconds,

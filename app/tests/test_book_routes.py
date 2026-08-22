@@ -80,7 +80,8 @@ def test_book_page_and_model_card_do_not_initialise_the_service(tmp_path):
 
     page = client.get("/books")
     assert page.status_code == 200
-    assert b"Find the book that feels" in page.data
+    assert b"Add books you like" in page.data
+    assert b"Recommend books" in page.data
 
     model = client.get("/api/books/model")
     assert model.status_code == 200

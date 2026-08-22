@@ -52,12 +52,14 @@ def test_landing_afl_and_health_render_snapshot(tmp_path):
 
     afl = client.get("/afl")
     assert afl.status_code == 200
-    assert b"AFL ML" in afl.data
+    assert b"AFL Prediction Model" in afl.data
+    assert b"AFL ML" not in afl.data
+    assert b"AFLML" not in afl.data
     assert b"By Sam Speed" in afl.data
     assert b"Data-led weekly forecasts" not in afl.data
     assert b"pre-match football indicators driving every call" not in afl.data
     assert b"Key prediction indicators" in afl.data
-    assert b"extra average margin error when shuffled" in afl.data
+    assert b"extra average error after shuffling" in afl.data
 
     health = client.get("/health")
     assert health.status_code == 200

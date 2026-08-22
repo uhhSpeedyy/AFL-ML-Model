@@ -121,11 +121,11 @@ def _recommendations_for_browser(payload: dict) -> dict:
     ]
     if themes:
         theme_phrase = " and ".join(themes[:2])
-        summary = f"Your favourites lean toward {theme_phrase}."
+        summary = f"Themes: {theme_phrase}."
     else:
-        summary = "Your favourites form an eclectic shelf, so the model has kept the mix broad."
+        summary = "Mixed themes."
     if styles:
-        summary += f" The strongest metadata-based style signal is {styles[0].casefold()}."
+        summary += f" Style: {styles[0]}."
 
     lists = []
     for index, shortlist in enumerate(payload.get("shortlists", [])):
@@ -133,12 +133,14 @@ def _recommendations_for_browser(payload: dict) -> dict:
         if isinstance(basis, dict):
             titles = [str(value) for value in basis.get("favourite_titles", []) if value]
             description = (
-                f"Grounded in {', '.join(titles[:3])}."
+                f"Based on {', '.join(titles[:3])}."
                 if titles
-                else "A focused route through one of your strongest recurring themes."
+                else "Matches one of your main themes."
             )
         else:
-            description = str(basis or "A balanced, explainable match for your shelf.")
+            description = "Closest overall matches." if index == 0 else str(
+                basis or "Matches your selected books."
+            )
         lists.append(
             {
                 "id": f"shortlist-{index + 1}",

@@ -57,10 +57,22 @@
       .filter(Boolean);
   }
 
+  function usesOnlyLatinLetters(value) {
+    const letters = cleanText(value).match(/\p{Letter}/gu) || [];
+    return letters.length > 0 && letters.every((letter) => /\p{Script=Latin}/u.test(letter));
+  }
+
   function normaliseBook(raw = {}) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
 
-    const authors = cleanList(raw.authors || raw.author_name || raw.author);
+    const languages = cleanList(raw.language);
+    const rawAuthors = cleanList(raw.authors || raw.author_name || raw.author);
+    const hasEnglishEdition = !languages.length || languages.some((language) => {
+      const value = language.toLowerCase();
+      return value === "en" || value === "eng" || value === "english" || value.includes("/eng");
+    });
+    const latinAuthors = rawAuthors.filter(usesOnlyLatinLetters);
+    const authors = hasEnglishEdition && latinAuthors.length ? latinAuthors : rawAuthors;
     const yearValue = raw.year ?? raw.first_publish_year ?? raw.publish_year;
     const parsedYear = Number.parseInt(yearValue, 10);
     const numberOrNull = (value, integer = true) => {
@@ -89,7 +101,7 @@
       first_publish_year: year,
       number_of_pages_median: numberOrNull(raw.number_of_pages_median),
       subject: subjects,
-      language: cleanList(raw.language),
+      language: languages,
       first_sentence: cleanList(raw.first_sentence),
       cover_i: numberOrNull(raw.cover_i),
       edition_count: numberOrNull(raw.edition_count) || 0,
@@ -383,12 +395,9 @@
       const empty = document.createElement("div");
       empty.className = "empty-shelf";
       empty.id = "empty-shelf";
-      const marker = document.createElement("span");
-      marker.setAttribute("aria-hidden", "true");
-      marker.textContent = "01";
       const message = document.createElement("p");
-      message.textContent = "Your first favourite will appear here.";
-      empty.append(marker, message);
+      message.textContent = "No books selected.";
+      empty.append(message);
       favouritesGrid.append(empty);
     } else {
       state.favourites.forEach((book) => {
@@ -576,7 +585,7 @@
     const profile = payload && typeof payload.profile === "object" ? payload.profile : {};
     profileSummary.textContent = cleanText(
       profile.summary,
-      "Your favourites point to a mix of recurring themes and reading rhythms. Here are a few promising directions.",
+      "Based on your selected books.",
     );
     renderSignals(profileThemes, profileThemesWrap, profile.themes);
     renderSignals(profileStyles, profileStylesWrap, profile.styles);
@@ -591,7 +600,7 @@
       const title = document.createElement("h3");
       title.textContent = "No strong matches yet";
       const copy = document.createElement("p");
-      copy.textContent = "Try adding another favourite or choosing a more adventurous discovery setting.";
+      copy.textContent = "Add another book or change the options, then try again.";
       empty.append(title, copy);
       resultLists.append(empty);
       return;
@@ -613,7 +622,7 @@
       title.id = titleId;
       title.textContent = cleanText(list.title, "Books to explore");
       const description = document.createElement("p");
-      description.textContent = cleanText(list.description, "Selected from the strongest signals across your favourites.");
+      description.textContent = cleanText(list.description, "Matches your selected books.");
       heading.append(number, title, description);
 
       const grid = document.createElement("div");
