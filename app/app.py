@@ -6,6 +6,7 @@ import threading
 import time
 from datetime import datetime
 from functools import lru_cache
+from urllib.parse import quote_plus
 from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, render_template, request
@@ -74,6 +75,94 @@ INDICATOR_EXPLANATIONS = {
 }
 
 
+def _book_length_label(pages: object) -> str | None:
+    try:
+        count = int(float(pages))
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if count < 250:
+        return "Short"
+    if count < 400:
+        return "Medium"
+    if count < 600:
+        return "Long"
+    return "Epic"
+
+
+def _book_for_browser(book: dict) -> dict:
+    authors = [str(value) for value in book.get("author_name", []) if value]
+    key = str(book.get("key") or "")
+    if key.startswith("/works/"):
+        open_library_url = f"https://openlibrary.org{key}"
+    else:
+        search_text = " ".join(
+            value for value in [str(book.get("title") or ""), authors[0] if authors else ""] if value
+        )
+        open_library_url = f"https://openlibrary.org/search?q={quote_plus(search_text)}"
+    return {
+        **book,
+        "authors": authors,
+        "author": ", ".join(authors) or "Unknown author",
+        "year": book.get("first_publish_year"),
+        "open_library_url": open_library_url,
+        "length_label": book.get("length_band")
+        or _book_length_label(book.get("number_of_pages_median")),
+        "themes": list(book.get("matched_themes") or []),
+    }
+
+
+def _recommendations_for_browser(payload: dict) -> dict:
+    profile = payload.get("taste_profile", {})
+    themes = [item.get("name") for item in profile.get("themes", []) if item.get("name")]
+    styles = [
+        item.get("name")
+        for item in profile.get("style_proxies", [])
+        if item.get("name")
+    ]
+    if themes:
+        theme_phrase = " and ".join(themes[:2])
+        summary = f"Your favourites lean toward {theme_phrase}."
+    else:
+        summary = "Your favourites form an eclectic shelf, so the model has kept the mix broad."
+    if styles:
+        summary += f" The strongest metadata-based style signal is {styles[0].casefold()}."
+
+    lists = []
+    for index, shortlist in enumerate(payload.get("shortlists", [])):
+        basis = shortlist.get("basis")
+        if isinstance(basis, dict):
+            titles = [str(value) for value in basis.get("favourite_titles", []) if value]
+            description = (
+                f"Grounded in {', '.join(titles[:3])}."
+                if titles
+                else "A focused route through one of your strongest recurring themes."
+            )
+        else:
+            description = str(basis or "A balanced, explainable match for your shelf.")
+        lists.append(
+            {
+                "id": f"shortlist-{index + 1}",
+                "title": shortlist.get("name", "Reading direction"),
+                "description": description,
+                "books": [_book_for_browser(book) for book in shortlist.get("books", [])],
+            }
+        )
+
+    return {
+        "profile": {
+            "themes": themes,
+            "styles": styles,
+            "summary": summary,
+            "details": profile,
+        },
+        "lists": lists,
+        "meta": {
+            **payload.get("model", {}),
+            "notices": payload.get("notices", []),
+        },
+    }
+
+
 def _team_initials(team: str) -> str:
     special = {
         "Brisbane Lions": "BL",
@@ -105,6 +194,8 @@ def create_app(settings: Settings | None = None) -> Flask:
     settings = settings or Settings()
     app = Flask(__name__)
     app.config["SETTINGS"] = settings
+    app.config["MAX_CONTENT_LENGTH"] = 64 * 1024
+    book_service_lock = threading.Lock()
 
     @lru_cache(maxsize=1)
     def model_report() -> dict:
@@ -136,6 +227,18 @@ def create_app(settings: Settings | None = None) -> Flask:
     def prediction_payload() -> tuple[dict, str]:
         return _prediction_payload_cached(int(time.monotonic() // 60))
 
+    def book_recommendation_service():
+        service = app.extensions.get("book_recommendation_service")
+        if service is None:
+            with book_service_lock:
+                service = app.extensions.get("book_recommendation_service")
+                if service is None:
+                    from book_recommender import BookRecommendationService
+
+                    service = BookRecommendationService()
+                    app.extensions["book_recommendation_service"] = service
+        return service
+
     @app.context_processor
     def template_helpers() -> dict:
         return {
@@ -151,6 +254,10 @@ def create_app(settings: Settings | None = None) -> Flask:
 
     @app.get("/")
     def index():
+        return render_template("landing.html")
+
+    @app.get("/afl")
+    def afl_predictions():
         payload, storage_source = prediction_payload()
         return render_template(
             "index.html",
@@ -158,6 +265,93 @@ def create_app(settings: Settings | None = None) -> Flask:
             predictions=payload.get("predictions", []),
             report=model_report(),
             storage_source=storage_source,
+        )
+
+    @app.get("/books")
+    def books():
+        return render_template("books.html")
+
+    @app.get("/api/books/search")
+    def api_book_search():
+        query = " ".join(request.args.get("q", "").split())
+        if len(query) < 2:
+            return jsonify({"error": "Enter at least two characters to search for a book."}), 400
+        if len(query) > 120:
+            return jsonify({"error": "That search is too long."}), 400
+        result = book_recommendation_service().search(query, limit=8)
+        books = [_book_for_browser(book) for book in result.get("results", [])]
+        if result.get("degraded") and not books:
+            return jsonify(
+                {"error": "Book search is temporarily unavailable. Please try again."}
+            ), 503
+        return jsonify(
+            {
+                "books": books,
+                "source": result.get("source"),
+                "degraded": bool(result.get("degraded")),
+            }
+        )
+
+    @app.post("/api/books/recommend")
+    def api_book_recommendations():
+        body = request.get_json(silent=True)
+        if not isinstance(body, dict):
+            return jsonify({"error": "Send a JSON object with a favourites list."}), 400
+        favourites = body.get("favourites")
+        if not isinstance(favourites, list) or not 1 <= len(favourites) <= 10:
+            return jsonify({"error": "Choose between one and ten favourite books."}), 400
+
+        browser_preferences = body.get("preferences")
+        if browser_preferences is None:
+            browser_preferences = {}
+        elif not isinstance(browser_preferences, dict):
+            return jsonify({"error": "Preferences must be a JSON object."}), 400
+        discovery = browser_preferences.get("discovery")
+        service_preferences = {
+            "shortlist_size": 6,
+            "theme_list_count": 3,
+            "allow_same_author": discovery != "adventurous",
+            "author_emphasis": 2.0 if discovery == "familiar" else 1.0,
+            "ignore_length": browser_preferences.get("length") == "any",
+        }
+        era = browser_preferences.get("era")
+        if era == "modern":
+            service_preferences["preferred_era"] = ["Modern", "Contemporary"]
+        elif era == "classics":
+            service_preferences["preferred_era"] = ["Classic", "Post-war"]
+
+        try:
+            result = book_recommendation_service().recommend(
+                favourites,
+                service_preferences,
+            )
+        except ValueError as exc:
+            return jsonify({"error": str(exc)}), 400
+        return jsonify(_recommendations_for_browser(result))
+
+    @app.get("/api/books/model")
+    def api_book_model():
+        return jsonify(
+            {
+                "name": "Explainable metadata content model",
+                "version": "metadata-content-v1",
+                "data_source": "Open Library with a curated resilience catalogue",
+                "signals": [
+                    "themes and detailed subjects",
+                    "metadata-derived style proxies",
+                    "author",
+                    "length band",
+                    "publication era",
+                    "language",
+                    "reader interest and rating evidence",
+                ],
+                "method": "Weighted content similarity with popularity as a bounded quality prior and diversity-aware shortlists.",
+                "limitations": [
+                    "The model does not analyse full copyrighted text.",
+                    "Style labels are proxies derived from available metadata.",
+                    "It has no personal feedback history yet, so results are suggestions rather than calibrated predictions.",
+                ],
+            }
         )
 
     @app.get("/api/predictions")

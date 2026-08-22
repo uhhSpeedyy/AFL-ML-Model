@@ -1,10 +1,13 @@
-# AFL ML Prediction Model
+# Sam Speed — Applied ML
 
-By Sam Speed — a locally trained AFL outcome and margin model, served from Azure App Service and backed by Azure SQL.
+Two explainable models in one Flask application, served from the same Azure App Service:
 
-The live application is designed for [sam-speed.azurewebsites.net](https://sam-speed.azurewebsites.net/). It shows every match in the next available round, three-way home/away/draw probabilities, an expected margin, an 80% margin range, and clickable pre-match evidence for each forecast.
+- an AFL outcome and margin model; and
+- a personalised, metadata-based book recommender.
 
-## Model
+The landing page at [sam-speed.azurewebsites.net](https://sam-speed.azurewebsites.net/) lets a visitor choose either experience. The AFL dashboard lives at `/afl`; the reading experience lives at `/books`.
+
+## AFL model
 
 - Historical window: 2012–2026, with 3,077 completed matches in the current snapshot.
 - Untouched test season: 2022. Model selection and calibration use only data available before 2022; the production estimator excludes all 2022 match rows.
@@ -14,6 +17,23 @@ The live application is designed for [sam-speed.azurewebsites.net](https://sam-s
 - Current 2022 holdout result: 75.2% tip accuracy and 25.32-point margin MAE across 207 matches.
 
 The full reproducible evaluation and feature-importance output is stored in `app/artifacts/model_report.json`. Same-match correlations in that report are descriptive only; they are not used as same-game inputs and do not establish causation.
+
+## Book recommender
+
+The book model is an unsupervised, content-based recommender. A visitor searches for up to ten favourite works, and the model builds a taste profile from:
+
+- normalised themes and detailed Open Library subjects;
+- metadata-derived writing-style proxies;
+- author;
+- broad length band;
+- publication era and language; and
+- bounded reader-interest evidence, used as a quality prior rather than a substitute for similarity.
+
+The ranking balances those signals, excludes books already selected, limits repeated authors, and applies diversity penalties. It returns one balanced shortlist plus up to three shortlists grounded in the favourite shelf's strongest themes. Every recommendation includes plain-language reasons; no unsupported match percentage is presented as a probability.
+
+Open Library does not expose enough information to measure prose style directly, and its public ratings do not provide the user-level outcomes needed for collaborative filtering. The UI therefore labels style as a metadata-derived proxy. A future opt-in feedback loop could train a personal reranker once genuine like/dislike outcomes exist.
+
+Search and candidate discovery use the official [Open Library Search API](https://openlibrary.org/dev/docs/api/search) with an explicit field projection, bounded results, timeouts, retries, an in-memory six-hour cache, and a polite process-wide request interval. A curated local catalogue keeps search and recommendations useful during an upstream outage. Set `OPEN_LIBRARY_CONTACT` to a monitored contact email in the deployment environment to identify regular API traffic; otherwise the client stays within the default one-request-per-second guidance.
 
 ## Data
 
@@ -44,6 +64,7 @@ AFL_START_SEASON=2012
 AFL_CURRENT_SEASON=2026
 SQUIGGLE_CONTACT=your-contact-address
 AFL_REFRESH_TOKEN=use-a-long-random-secret
+OPEN_LIBRARY_CONTACT=monitored-contact@example.com
 ```
 
 No SQL password is stored. Local scripts use the signed-in Azure CLI identity; App Service uses its system-assigned managed identity.
@@ -69,11 +90,18 @@ python scripts/train_model.py --persist-db
 
 `main.tf` configures the existing Azure connection point, Python 3.11 runtime, managed identity, VNet integration, health check, and App Service settings. `.github/workflows/deploy.yml` tests the application and loads the committed model artifact under Python 3.11 before deploying.
 
+The book feature uses the same Flask/Gunicorn process and needs no new Terraform resources, database tables, paid AI API, JVM, or native service. Keeping it in Python also preserves the existing Azure build path; scikit-learn/NumPy already provide compiled numerical components where the AFL model needs them.
+
 `.github/workflows/refresh-predictions.yml` refreshes the current-season state and next round every Tuesday. Add the same long random value as `AFL_REFRESH_TOKEN` in both the App Service settings and the GitHub repository Actions secrets. The endpoint is authenticated and accepts only one refresh at a time.
 
 Useful endpoints:
 
-- `/` — prediction website
+- `/` — model chooser
+- `/afl` — AFL prediction website
+- `/books` — interactive book recommender
+- `/api/books/search?q=...` — bounded favourite-book search
+- `/api/books/recommend` — explainable themed recommendations
+- `/api/books/model` — book model card and limitations
 - `/api/predictions` — current prediction snapshot
 - `/api/model` — model card and evaluation
 - `/health` — application health

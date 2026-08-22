@@ -7,7 +7,7 @@ from afl_ml.settings import Settings
 from app import create_app
 
 
-def test_homepage_and_health_render_snapshot(tmp_path):
+def test_landing_afl_and_health_render_snapshot(tmp_path):
     settings = replace(
         Settings(),
         data_dir=tmp_path / "data",
@@ -45,14 +45,19 @@ def test_homepage_and_health_render_snapshot(tmp_path):
     app = create_app(settings)
     client = app.test_client()
 
-    response = client.get("/")
-    assert response.status_code == 200
-    assert b"AFL ML" in response.data
-    assert b"By Sam Speed" in response.data
-    assert b"Data-led weekly forecasts" not in response.data
-    assert b"pre-match football indicators driving every call" not in response.data
-    assert b"Key prediction indicators" in response.data
-    assert b"extra average margin error when shuffled" in response.data
+    landing = client.get("/")
+    assert landing.status_code == 200
+    assert b'href="/afl"' in landing.data
+    assert b'href="/books"' in landing.data
+
+    afl = client.get("/afl")
+    assert afl.status_code == 200
+    assert b"AFL ML" in afl.data
+    assert b"By Sam Speed" in afl.data
+    assert b"Data-led weekly forecasts" not in afl.data
+    assert b"pre-match football indicators driving every call" not in afl.data
+    assert b"Key prediction indicators" in afl.data
+    assert b"extra average margin error when shuffled" in afl.data
 
     health = client.get("/health")
     assert health.status_code == 200

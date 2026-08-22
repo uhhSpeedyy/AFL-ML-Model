@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore Sam Speed's applied machine-learning projects: weekly AFL forecasts and an explainable book recommender.">
+    <meta name="theme-color" content="#f3efe5">
+    <title>Sam Speed — Applied ML</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+</head>
+<body>
+    <a class="skip-link" href="#projects">Skip to the projects</a>
+
+    <div class="landing-shell">
+        <header class="masthead">
+            <a class="wordmark" href="/" aria-label="Sam Speed, applied machine learning home">
+                <span>Sam Speed</span>
+                <small>Applied ML</small>
+            </a>
+            <p class="masthead-note">Two practical models<br>built to be explored</p>
+        </header>
+
+        <main>
+            <section class="intro" aria-labelledby="intro-title">
+                <p class="issue-line"><span>Model collection</span><span>01—02</span></p>
+                <div class="intro-grid">
+                    <h1 id="intro-title">Models for the questions you <em>actually ask.</em></h1>
+                    <div class="intro-copy">
+                        <p>What happens next weekend? What should I read next? Explore two machine-learning projects that turn public data into clear, useful suggestions.</p>
+                        <p class="intro-byline">Designed and built by Sam Speed in Melbourne.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="projects" id="projects" aria-labelledby="projects-title">
+                <div class="section-heading">
+                    <p class="eyebrow">Choose a model</p>
+                    <h2 id="projects-title">Start exploring</h2>
+                </div>
+
+                <div class="project-grid">
+                    <article class="project-card project-card--afl">
+                        <div class="card-topline">
+                            <span class="project-number">01</span>
+                            <span class="project-type">Sports forecasting</span>
+                        </div>
+                        <div class="card-mark" aria-hidden="true">
+                            <span>AFL</span>
+                            <i>ML</i>
+                        </div>
+                        <div class="card-copy">
+                            <p class="card-kicker">The weekly forecast</p>
+                            <h3>AFL prediction model</h3>
+                            <p>Pre-match win probabilities, expected margins and the leading indicators behind every call for the next round.</p>
+                        </div>
+                        <a class="project-link" href="/afl">
+                            <span>Open AFL predictions</span>
+                            <span aria-hidden="true">↗</span>
+                        </a>
+                    </article>
+
+                    <article class="project-card project-card--books">
+                        <div class="card-topline">
+                            <span class="project-number">02</span>
+                            <span class="project-type">Personal discovery</span>
+                        </div>
+                        <div class="book-stack" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="card-copy">
+                            <p class="card-kicker">The thoughtful shortlist</p>
+                            <h3>Book recommender</h3>
+                            <p>Add the books you love and discover explainable shortlists shaped by their themes, style, length and era.</p>
+                        </div>
+                        <a class="project-link" href="/books">
+                            <span>Find my next book</span>
+                            <span aria-hidden="true">↗</span>
+                        </a>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <footer class="landing-footer">
+            <p>Models are guides, not certainties. Each experience shows the signals behind its suggestions.</p>
+            <p>Sam Speed · Melbourne, Australia</p>
+        </footer>
+    </div>
+</body>
+</html>

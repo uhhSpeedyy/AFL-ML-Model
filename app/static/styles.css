@@ -45,10 +45,12 @@ a { color: inherit; text-underline-offset: 3px; }
 }
 
 .brand-mark {
+  color: inherit;
   font-family: "Barlow Condensed", sans-serif;
   font-size: 1.65rem;
   font-weight: 800;
   letter-spacing: -0.03em;
+  text-decoration: none;
 }
 
 .brand-mark span { color: var(--accent); }
