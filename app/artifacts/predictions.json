@@ -1,0 +1,172 @@
+{
+  "model_version": "afl-20260824-082239",
+  "generated_at": "2026-08-24T08:22:43.196456+00:00",
+  "round_name": "Wildcard Finals",
+  "season": 2026,
+  "predictions": [
+    {
+      "game_id": "38720",
+      "season": 2026,
+      "round_number": 25,
+      "round_name": "Wildcard Finals",
+      "start_time": "2026-08-28T19:40:00+10:00",
+      "venue": "M.C.G.",
+      "home_team": "Western Bulldogs",
+      "away_team": "Collingwood",
+      "home_win_probability": 39.0,
+      "away_win_probability": 59.8,
+      "draw_probability": 1.2,
+      "expected_home_margin": -8.7,
+      "expected_margin": 8.7,
+      "predicted_winner": "Collingwood",
+      "interval_80_low": -51.0,
+      "interval_80_high": 33.6,
+      "factors": [
+        {
+          "feature": "venue_familiarity_diff",
+          "label": "Venue familiarity",
+          "unit": "log games",
+          "description": "Difference in prior matches played at this venue.",
+          "home_value": 3.5,
+          "away_value": 5.4,
+          "difference": -1.9,
+          "advantage_team": "Collingwood",
+          "linear_contribution_points": -6.9,
+          "lower_is_better": false
+        },
+        {
+          "feature": "shots_short_diff",
+          "label": "Scoring shots",
+          "unit": "/game",
+          "description": "Recent shots at goal before this match.",
+          "home_value": 24.7,
+          "away_value": 28.9,
+          "difference": -4.2,
+          "advantage_team": "Collingwood",
+          "linear_contribution_points": -2.3,
+          "lower_is_better": false
+        },
+        {
+          "feature": "travel_advantage_km",
+          "label": "Travel advantage",
+          "unit": "km",
+          "description": "Approximate extra travel required of the away team.",
+          "home_value": 0.0,
+          "away_value": 0.0,
+          "difference": 0.0,
+          "advantage_team": "Collingwood",
+          "linear_contribution_points": -1.4,
+          "lower_is_better": false
+        },
+        {
+          "feature": "centre_clearance_short_diff",
+          "label": "Centre clearances",
+          "unit": "/game",
+          "description": "Recent centre-bounce clearances before this match.",
+          "home_value": 10.8,
+          "away_value": 14.3,
+          "difference": -3.4,
+          "advantage_team": "Collingwood",
+          "linear_contribution_points": -1.1,
+          "lower_is_better": false
+        },
+        {
+          "feature": "experience_short_diff",
+          "label": "Team experience",
+          "unit": "games/player",
+          "description": "Average match experience of recent teams.",
+          "home_value": 94.2,
+          "away_value": 134.8,
+          "difference": -40.6,
+          "advantage_team": "Collingwood",
+          "linear_contribution_points": -1.0,
+          "lower_is_better": false
+        }
+      ],
+      "model_version": "afl-20260824-082239",
+      "generated_at": "2026-08-24T08:22:43.196456+00:00"
+    },
+    {
+      "game_id": "38719",
+      "season": 2026,
+      "round_number": 25,
+      "round_name": "Wildcard Finals",
+      "start_time": "2026-08-29T19:35:00+10:00",
+      "venue": "M.C.G.",
+      "home_team": "Melbourne",
+      "away_team": "Carlton",
+      "home_win_probability": 55.0,
+      "away_win_probability": 43.8,
+      "draw_probability": 1.2,
+      "expected_home_margin": 4.7,
+      "expected_margin": 4.7,
+      "predicted_winner": "Melbourne",
+      "interval_80_low": -37.6,
+      "interval_80_high": 47.0,
+      "factors": [
+        {
+          "feature": "shots_short_diff",
+          "label": "Scoring shots",
+          "unit": "/game",
+          "description": "Recent shots at goal before this match.",
+          "home_value": 31.2,
+          "away_value": 29.3,
+          "difference": 1.9,
+          "advantage_team": "Melbourne",
+          "linear_contribution_points": 1.3,
+          "lower_is_better": false
+        },
+        {
+          "feature": "inside50_long_diff",
+          "label": "Inside 50s, longer term",
+          "unit": "/game",
+          "description": "Slower-moving forward-50 entry form.",
+          "home_value": 57.0,
+          "away_value": 53.0,
+          "difference": 4.0,
+          "advantage_team": "Melbourne",
+          "linear_contribution_points": 0.9,
+          "lower_is_better": false
+        },
+        {
+          "feature": "post_clearance_short_diff",
+          "label": "Post-clearance contested ball",
+          "unit": "/game",
+          "description": "Contested possessions won after the initial clearance phase.",
+          "home_value": 90.3,
+          "away_value": 77.6,
+          "difference": 12.7,
+          "advantage_team": "Melbourne",
+          "linear_contribution_points": 0.8,
+          "lower_is_better": false
+        },
+        {
+          "feature": "metres_gained_short_diff",
+          "label": "Metres gained",
+          "unit": "m/game",
+          "description": "Recent territory gained with ball movement.",
+          "home_value": 6239.7,
+          "away_value": 5784.7,
+          "difference": 455.0,
+          "advantage_team": "Melbourne",
+          "linear_contribution_points": 0.7,
+          "lower_is_better": false
+        },
+        {
+          "feature": "player_top6_diff",
+          "label": "Top-six player strength",
+          "unit": "rating pts",
+          "description": "Average rolling rating of the six strongest recent players.",
+          "home_value": 12.9,
+          "away_value": 12.3,
+          "difference": 0.6,
+          "advantage_team": "Melbourne",
+          "linear_contribution_points": 0.6,
+          "lower_is_better": false
+        }
+      ],
+      "model_version": "afl-20260824-082239",
+      "generated_at": "2026-08-24T08:22:43.196456+00:00"
+    }
+  ]
+}
