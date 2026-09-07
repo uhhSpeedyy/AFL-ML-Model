@@ -23,3 +23,4 @@ cloudflare/dist/
 cloudflare/.cache/
 cloudflare/.wrangler/
 node_modules/
+private-backups/

@@ -1,6 +1,6 @@
 # Free hosting options
 
-**Update:** Cloudflare migration implementation and setup instructions are now in [CLOUDFLARE.md](CLOUDFLARE.md). The comparison below records the earlier investigation.
+**Historical comparison:** The website now runs on Cloudflare Pages Free. Use [CLOUDFLARE.md](CLOUDFLARE.md) for the current deployment and Azure retirement record. The proposals below predate the completed migration.
 
 Checked 7 September 2026. The current app is Python/Flask with saved AFL prediction artifacts and an interactive Open Library book recommender. Terraform configures Azure B1 hosting, SQL connectivity, a private endpoint and private DNS. Moving traffic does not remove those resources or their costs.
 

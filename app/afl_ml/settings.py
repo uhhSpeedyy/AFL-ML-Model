@@ -42,11 +42,11 @@ class Settings:
     squiggle_contact: str = field(
         default_factory=lambda: os.getenv(
             "SQUIGGLE_CONTACT",
-            "github.com/uhhSpeedyy/Az-cloud-infrastructure",
+            "github.com/uhhSpeedyy/AFL-ML-Model",
         )
     )
     database_enabled: bool = field(
-        default_factory=lambda: _as_bool(os.getenv("AFL_DATABASE_ENABLED"), True)
+        default_factory=lambda: _as_bool(os.getenv("AFL_DATABASE_ENABLED"), False)
     )
     database_read_enabled: bool = field(
         default_factory=lambda: _as_bool(
@@ -79,7 +79,7 @@ class Settings:
     def user_agent(self) -> str:
         return (
             "AFL-ML-Prediction-Model/1.0 "
-            f"(sam-speed.azurewebsites.net; contact: {self.squiggle_contact})"
+            f"(sam-speed-models.pages.dev; contact: {self.squiggle_contact})"
         )
 
     def ensure_directories(self) -> None:

@@ -166,7 +166,7 @@ class OpenLibraryClient:
         resolved_contact = (
             contact
             or os.environ.get("OPEN_LIBRARY_CONTACT")
-            or "https://sam-speed.azurewebsites.net/"
+            or "https://sam-speed-models.pages.dev/"
         )
         if min_request_interval is None:
             # Open Library currently allows three identified requests/second

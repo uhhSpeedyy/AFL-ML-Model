@@ -90,20 +90,15 @@ The public site does not need these APIs. Any separate client using the old HTTP
 endpoints would need adapting. Saved favourites on the Azure origin do not
 automatically transfer to the new origin; reselect them on the new site.
 
-## Retiring Azure
+## Azure retirement
 
-Publishing to Cloudflare does not delete Azure resources or cancel Azure charges.
-The old Azure hostname cannot be transferred to Cloudflare. Share the new free
-`pages.dev` address (or connect a domain you own; domain renewal is separate).
+On 7 September 2026, the full Azure inventory was reviewed and retirement was requested for the old website, B1 App Service plan, SQL server/database, private endpoint, virtual network, DNS zone, network security group, Log Analytics workspace and Network Watcher. These were the only resources in the subscription.
 
-The inventory found `Sam-Speed`, `app-service-plan`, `sql-private-endpoint`, and private DNS/network resources in `resourcegroup1`. SQL server `speedserver` is in the separate `LearningProject` resource group.
+Before deletion, all four SQL user tables were exported to a private local backup and the saved JSON was read back to verify row counts: 2 model runs, 9 predictions, 2 prediction snapshots and 2 Users records. Database contents, infrastructure state and variable files are stored only in the ignored `private-backups/azure-retirement/` folder on the migration computer, with restricted file permissions. They are not published to GitHub or Cloudflare. Keep a private copy of that folder if moving computers.
 
-After the new site is verified, review and retire the old B1 App Service plan,
-web app, SQL database and its private endpoint/DNS resources if they are no longer
-needed. Back up any SQL-only history first; it is not required for the website,
-but is not copied into the static export. Do not destroy an entire resource group
-without confirming all its contents are disposable. The migration workflow no
-longer logs into Azure or invokes the old refresh endpoint.
+The Azure deployment credentials and refresh token were removed from GitHub. The former Terraform files are archived under `legacy/azure/` with `.disabled` extensions. Local database access defaults to disabled. Historical SQL helper scripts remain available for reference; they are not part of the hosted site or update workflow.
+
+The old `sam-speed.azurewebsites.net` address cannot be transferred to Cloudflare and is retired. Use https://sam-speed-models.pages.dev. Hosting and updates use the free services described above. Charges already accrued before cancellation can still appear on a final Azure bill.
 
 ## Sources
 

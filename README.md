@@ -60,43 +60,24 @@ Training runs locally and does not require Azure ML or paid compute. Source snap
 Optional environment settings can be placed in `app/.env`:
 
 ```dotenv
-DB_SERVER=speedserver.database.windows.net
-DB_NAME=DB_one
-AFL_DATABASE_ENABLED=true
+AFL_DATABASE_ENABLED=false
+AFL_DATABASE_READ_ENABLED=false
 AFL_HOLDOUT_SEASON=2022
 AFL_START_SEASON=2012
 AFL_CURRENT_SEASON=2026
 SQUIGGLE_CONTACT=your-contact-address
-AFL_REFRESH_TOKEN=use-a-long-random-secret
 OPEN_LIBRARY_CONTACT=monitored-contact@example.com
 ```
 
-No SQL password is stored. Local scripts use the signed-in Azure CLI identity; App Service uses its system-assigned managed identity.
+The website and local development use versioned prediction files. No Azure credentials or SQL database are required.
 
-## Azure SQL setup
+## Hosting and updates
 
-Run the following once while connected to `DB_one` as its Microsoft Entra administrator:
+The live website is [sam-speed-models.pages.dev](https://sam-speed-models.pages.dev). See [CLOUDFLARE.md](CLOUDFLARE.md) for deployment, free-plan limits and the Azure retirement record.
 
-1. `app/sql/001_afl_schema.sql`
-2. `app/sql/002_grant_app_identity.sql`
+The former Azure Terraform configuration is archived as `legacy/azure/main.tf.disabled` so it cannot accidentally provision paid resources from the repository root. SQL helper scripts remain for historical reference only. Private database and infrastructure backups are excluded from Git.
 
-The second script creates the `Sam-Speed` managed-identity user and grants only `SELECT`, `INSERT`, and `UPDATE` on the AFL model tables. It does not grant broad database roles or delete access.
-
-To initialise from the command line after the database variables are configured:
-
-```bash
-python scripts/init_database.py
-python scripts/grant_app_identity.py
-python scripts/train_model.py --persist-db
-```
-
-## Legacy Azure deployment (retained for reference)
-
-`main.tf` configures the existing Azure connection point, Python 3.11 runtime, managed identity, VNet integration, health check, and App Service settings. The Azure deployment workflow has been replaced by validation of the Python models and Cloudflare export. Terraform does not control Cloudflare.
-
-The book feature uses the same Flask/Gunicorn process and needs no new Terraform resources, database tables, paid AI API, JVM, or native service. Keeping it in Python also preserves the existing Azure build path; scikit-learn/NumPy already provide compiled numerical components where the AFL model needs them.
-
-`.github/workflows/refresh-predictions.yml` now trains and validates in GitHub Actions every Tuesday, then commits the model artifacts to `main`. Cloudflare Pages builds from `main`. No Azure refresh token or database is used. `AFL_CURRENT_SEASON` remains explicit (2026); update it when the next season feed is available.
+`.github/workflows/refresh-predictions.yml` trains and validates in GitHub Actions every Tuesday, then commits the model artifacts to `main`. Cloudflare Pages builds from `main`. No Azure refresh token or database is used. `AFL_CURRENT_SEASON` remains explicit (2026); update it when the next season feed is available.
 
 Local Flask endpoints (see [Cloudflare route compatibility](CLOUDFLARE.md#route-compatibility) for the public static deployment):
 
