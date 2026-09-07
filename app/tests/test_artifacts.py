@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -19,9 +19,13 @@ def test_committed_model_artifacts_load_and_predict():
     snapshot = load_json(ARTIFACTS_DIR / "predictions.json")
 
     assert bundle.model_version == report["model_version"] == snapshot["model_version"]
-    assert snapshot["predictions"], "The committed prediction snapshot must contain a fixture"
-
-    saved_fixture = snapshot["predictions"][0]
+    # An empty next-round snapshot is valid after the grand final. Continue
+    # exercising model inference with a synthetic fixture in that case.
+    saved_fixture = snapshot["predictions"][0] if snapshot["predictions"] else {
+        "game_id": "test-fixture", "season": 2026, "round_number": 30,
+        "round_name": "Test fixture", "start_time": datetime(2026, 10, 1, tzinfo=timezone.utc).isoformat(),
+        "venue": "M.C.G.", "home_team": "Geelong", "away_team": "Brisbane Lions",
+    }
     game = {
         "id": saved_fixture["game_id"],
         "year": saved_fixture["season"],

@@ -1,5 +1,7 @@
 # Free hosting options
 
+**Update:** Cloudflare migration implementation and setup instructions are now in [CLOUDFLARE.md](CLOUDFLARE.md). The comparison below records the earlier investigation.
+
 Checked 7 September 2026. The current app is Python/Flask with saved AFL prediction artifacts and an interactive Open Library book recommender. Terraform configures Azure B1 hosting, SQL connectivity, a private endpoint and private DNS. Moving traffic does not remove those resources or their costs.
 
 ## Recommended: Render Free for the full application

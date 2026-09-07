@@ -1,52 +1,26 @@
-name: Build and Deploy Flask App
-
+name: Validate models and Cloudflare site
 on:
   push:
-    branches:
-      - main
-
+    branches: [main, codex/afl-ml-prediction-model]
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
-  id-token: write
-
-env:
-  AZURE_WEBAPP_NAME: Sam-Speed
-  PYTHON_VERSION: "3.11"
-
 jobs:
-  build-and-deploy:
+  validate:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        working-directory: ./app
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-
-      - name: Validate application and model tests
-        working-directory: ./app
-        run: |
-          python -m py_compile app.py
-          pytest -q
-
-      - name: Login to Azure
-        uses: azure/login@v2
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ./app
+          node-version: '22'
+      - run: pip install -r app/requirements-dev.txt
+      - run: pytest -q app/tests
+      - run: python cloudflare/build.py
+      - run: python cloudflare/make_test_cases.py
+      - run: node cloudflare/test_runtime.mjs
+      # Cloudflare Pages deploys through its Git integration; no Azure login.

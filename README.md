@@ -1,11 +1,11 @@
-# Sam Speed's models
+# AFL ML Prediction Model — Sam Speed's models
 
-Two models run in one Flask application:
+Two models share one website:
 
 - an AFL outcome and margin model; and
 - a personalised, metadata-based book recommender.
 
-Choose a model at [sam-speed.azurewebsites.net](https://sam-speed.azurewebsites.net/). AFL predictions are at `/afl`; book recommendations are at `/books`.
+Cloudflare migration: see [CLOUDFLARE.md](CLOUDFLARE.md) for deployment and updates. AFL predictions are at `/afl`; book recommendations are at `/books`. Python/Flask is retained for training, local use, and parity tests.
 
 ## AFL model
 
@@ -35,11 +35,11 @@ Recommendations stay in the favourites' language. Missing language data defaults
 
 Open Library does not provide prose-level style data or user-level ratings. Style is therefore an estimate based on metadata.
 
-Search uses the [Open Library Search API](https://openlibrary.org/dev/docs/api/search) with bounded results, timeouts, retries, caching and rate limiting. A local catalogue is used if Open Library is unavailable. Set `OPEN_LIBRARY_CONTACT` to a monitored email to identify API traffic.
+On Cloudflare, the original Python recommendation model runs in the browser via Pyodide. Search uses the [Open Library Search API](https://openlibrary.org/dev/docs/api/search) directly, with bounded results, timeouts, caching and request spacing. A local catalogue is used if Open Library is unavailable. The Flask client retains server-side requests and retries for local use.
 
 ## Data
 
-The AFL model uses derived match, team and player data from [Wheelo Ratings](https://www.wheeloratings.com/) and fixtures/results from the [Squiggle API](https://api.squiggle.com.au/). Requests are server-side, cached and low volume.
+The AFL model uses derived match, team and player data from [Wheelo Ratings](https://www.wheeloratings.com/) and fixtures/results from the [Squiggle API](https://api.squiggle.com.au/). AFL ingestion runs locally or in GitHub Actions, using cached, low-volume requests.
 
 Before treating the scheduled Wheelo ingestion as a long-term public production feed, obtain written confirmation that this automated derived use is acceptable. AFL Tables and the fitzRoy/TORP datasets are documented fallback and validation sources.
 
@@ -88,15 +88,15 @@ python scripts/grant_app_identity.py
 python scripts/train_model.py --persist-db
 ```
 
-## Deployment and refresh
+## Legacy Azure deployment (retained for reference)
 
-`main.tf` configures the existing Azure connection point, Python 3.11 runtime, managed identity, VNet integration, health check, and App Service settings. `.github/workflows/deploy.yml` tests the application and loads the committed model artifact under Python 3.11 before deploying.
+`main.tf` configures the existing Azure connection point, Python 3.11 runtime, managed identity, VNet integration, health check, and App Service settings. The Azure deployment workflow has been replaced by validation of the Python models and Cloudflare export. Terraform does not control Cloudflare.
 
 The book feature uses the same Flask/Gunicorn process and needs no new Terraform resources, database tables, paid AI API, JVM, or native service. Keeping it in Python also preserves the existing Azure build path; scikit-learn/NumPy already provide compiled numerical components where the AFL model needs them.
 
-`.github/workflows/refresh-predictions.yml` refreshes the current-season state and next round every Tuesday. Add the same long random value as `AFL_REFRESH_TOKEN` in both the App Service settings and the GitHub repository Actions secrets. The endpoint is authenticated and accepts only one refresh at a time.
+`.github/workflows/refresh-predictions.yml` now trains and validates in GitHub Actions every Tuesday, then commits the model artifacts to `main`. Cloudflare Pages builds from `main`. No Azure refresh token or database is used. `AFL_CURRENT_SEASON` remains explicit (2026); update it when the next season feed is available.
 
-Useful endpoints:
+Local Flask endpoints (see [Cloudflare route compatibility](CLOUDFLARE.md#route-compatibility) for the public static deployment):
 
 - `/` — model chooser
 - `/afl` — AFL prediction website

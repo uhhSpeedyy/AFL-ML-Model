@@ -284,7 +284,8 @@ def load_historical_matches(
             round_id = str(round_id)
             payload = client.wheelo_round(
                 round_id,
-                mutable=season == end_season and round_id == str(round_ids[-1]),
+                # Revalidate partial rounds even after the next round is added.
+                mutable=season == end_season,
             )
             if not payload.get("Matches") or not payload.get("TeamData"):
                 continue

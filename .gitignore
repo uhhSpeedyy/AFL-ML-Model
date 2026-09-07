@@ -19,3 +19,7 @@ app/artifacts/*.tmp
 .ruff_cache/
 htmlcov/
 .coverage
+cloudflare/dist/
+cloudflare/.cache/
+cloudflare/.wrangler/
+node_modules/

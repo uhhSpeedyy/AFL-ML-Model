@@ -1,20 +1,49 @@
 name: Refresh AFL predictions
-
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 0 * * 2"
-
+    - cron: '30 0 * * 2'
+permissions:
+  contents: write
+concurrency:
+  group: afl-model-refresh
+  cancel-in-progress: false
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AFL_DATABASE_ENABLED: 'false'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
     steps:
-      - name: Refresh the next round after completed results are published
-        env:
-          AFL_REFRESH_TOKEN: ${{ secrets.AFL_REFRESH_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r app/requirements-dev.txt
+      - uses: actions/cache@v4
+        with:
+          path: app/data/raw
+          key: afl-public-data-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: afl-public-data-${{ runner.os }}-
+      - name: Retrain from published results
+        run: python app/scripts/train_model.py
+      - run: pytest -q app/tests
+      - run: python cloudflare/build.py
+      - run: python cloudflare/make_test_cases.py
+      - run: node cloudflare/test_runtime.mjs
+      - name: Publish tested model snapshots
         run: |
-          curl --fail-with-body --show-error --silent \
-            --retry 3 --retry-all-errors --max-time 230 \
-            -X POST "https://sam-speed.azurewebsites.net/api/admin/refresh" \
-            -H "Authorization: Bearer ${AFL_REFRESH_TOKEN}" \
-            -H "Content-Type: application/json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/artifacts/afl_margin_model.joblib app/artifacts/model_report.json app/artifacts/predictions.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Refresh AFL model from latest completed matches'
+          git push origin HEAD:main
+      # The Cloudflare GitHub app receives the push independently of Actions.
