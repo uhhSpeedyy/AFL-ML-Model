@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20260907-004644",
-  "generated_at": "2026-09-07T00:46:50.335369+00:00",
+  "model_version": "afl-20260907-161913",
+  "generated_at": "2026-09-07T16:19:15.285006+00:00",
   "round_name": "Semi-Finals",
   "season": 2026,
   "predictions": [
@@ -13,14 +13,14 @@
       "venue": "Perth Stadium",
       "home_team": "Fremantle",
       "away_team": "Geelong",
-      "home_win_probability": 48.6,
-      "away_win_probability": 50.2,
+      "home_win_probability": 48.4,
+      "away_win_probability": 50.4,
       "draw_probability": 1.2,
-      "expected_home_margin": -0.6,
-      "expected_margin": 0.6,
+      "expected_home_margin": -0.9,
+      "expected_margin": 0.9,
       "predicted_winner": "Geelong",
-      "interval_80_low": -42.9,
-      "interval_80_high": 41.7,
+      "interval_80_low": -43.2,
+      "interval_80_high": 41.4,
       "factors": [
         {
           "feature": "shots_short_diff",
@@ -83,8 +83,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20260907-004644",
-      "generated_at": "2026-09-07T00:46:50.335369+00:00"
+      "model_version": "afl-20260907-161913",
+      "generated_at": "2026-09-07T16:19:15.285006+00:00"
     },
     {
       "game_id": "38726",
@@ -95,14 +95,14 @@
       "venue": "Gabba",
       "home_team": "Brisbane Lions",
       "away_team": "Adelaide",
-      "home_win_probability": 64.6,
-      "away_win_probability": 34.3,
+      "home_win_probability": 64.2,
+      "away_win_probability": 34.7,
       "draw_probability": 1.1,
-      "expected_home_margin": 12.9,
-      "expected_margin": 12.9,
+      "expected_home_margin": 12.5,
+      "expected_margin": 12.5,
       "predicted_winner": "Brisbane Lions",
-      "interval_80_low": -29.4,
-      "interval_80_high": 55.1,
+      "interval_80_low": -29.7,
+      "interval_80_high": 54.8,
       "factors": [
         {
           "feature": "shots_short_diff",
@@ -165,8 +165,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20260907-004644",
-      "generated_at": "2026-09-07T00:46:50.335369+00:00"
+      "model_version": "afl-20260907-161913",
+      "generated_at": "2026-09-07T16:19:15.285006+00:00"
     }
   ]
 }
