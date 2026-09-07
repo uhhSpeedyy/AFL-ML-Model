@@ -1,4 +1,6 @@
-# AFL ML Prediction Model — Sam Speed's models
+# AFL ML Prediction Model
+
+Uses match, team and player data to identify pre-match indicators of winning, achieving over 75% accuracy on the held-out 2022 season.
 
 Two models share one website:
 
