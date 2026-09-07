@@ -9,7 +9,7 @@ Choose a model at [sam-speed.azurewebsites.net](https://sam-speed.azurewebsites.
 
 ## AFL model
 
-- Historical window: 2012–2026, with 3,077 completed matches in the current snapshot.
+- Historical window: 2012–2026, with 3,092 completed matches in the current snapshot.
 - Untouched test season: 2022. Model selection and calibration use only data available before 2022; the production estimator excludes all 2022 match rows.
 - Estimator: a calibrated blend of regularised linear regression and histogram gradient boosting.
 - Inputs: opponent-adjusted results strength, rolling attack/defence, xScore, inside 50s, clearances, contested ball, scoring shots, player ratings, recent-lineup strength and continuity, rest, venue familiarity, and travel.

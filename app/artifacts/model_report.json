@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20260824-082239",
-  "trained_at": "2026-08-24T08:22:39.635281+00:00",
+  "model_version": "afl-20260907-004644",
+  "trained_at": "2026-09-07T00:46:44.966331+00:00",
   "holdout_season": 2022,
   "holdout_policy": "Estimator parameters and tuning were frozen using 2012-2021 before the one-pass 2022 test. Production fitting excludes 2022 rows.",
   "training_seasons": [
@@ -19,7 +19,7 @@
     2025,
     2026
   ],
-  "training_matches": 2852,
+  "training_matches": 2858,
   "holdout_metrics": {
     "matches": 207,
     "tip_accuracy": 0.7524,
@@ -102,7 +102,7 @@
       "feature": "elo_diff",
       "label": "Team strength rating",
       "mae_increase_when_shuffled": 1.164,
-      "lagged_spearman_correlation": 0.507
+      "lagged_spearman_correlation": 0.506
     },
     {
       "feature": "shots_short_diff",
@@ -114,7 +114,7 @@
       "feature": "xdefence_short_diff",
       "label": "Expected-score defence",
       "mae_increase_when_shuffled": 0.4136,
-      "lagged_spearman_correlation": -0.379
+      "lagged_spearman_correlation": -0.378
     },
     {
       "feature": "player_rating_diff",
@@ -132,31 +132,31 @@
       "feature": "metres_gained_short_diff",
       "label": "Metres gained",
       "mae_increase_when_shuffled": 0.2057,
-      "lagged_spearman_correlation": 0.373
+      "lagged_spearman_correlation": 0.374
     },
     {
       "feature": "turnover_short_diff",
       "label": "Ball security",
       "mae_increase_when_shuffled": 0.2036,
-      "lagged_spearman_correlation": 0.005
+      "lagged_spearman_correlation": 0.006
     },
     {
       "feature": "centre_clearance_short_diff",
       "label": "Centre clearances",
       "mae_increase_when_shuffled": 0.2012,
-      "lagged_spearman_correlation": 0.143
+      "lagged_spearman_correlation": 0.144
     },
     {
       "feature": "experience_short_diff",
       "label": "Team experience",
       "mae_increase_when_shuffled": 0.1594,
-      "lagged_spearman_correlation": 0.336
+      "lagged_spearman_correlation": 0.335
     },
     {
       "feature": "player_top6_diff",
       "label": "Top-six player strength",
       "mae_increase_when_shuffled": 0.1409,
-      "lagged_spearman_correlation": 0.374
+      "lagged_spearman_correlation": 0.372
     },
     {
       "feature": "post_clearance_short_diff",
@@ -174,7 +174,7 @@
       "feature": "inside50_short_diff",
       "label": "Inside 50s",
       "mae_increase_when_shuffled": 0.0567,
-      "lagged_spearman_correlation": 0.4
+      "lagged_spearman_correlation": 0.401
     },
     {
       "feature": "defence_short_diff",
@@ -192,19 +192,19 @@
       "feature": "season_progress",
       "label": "Season progress",
       "mae_increase_when_shuffled": 0.0125,
-      "lagged_spearman_correlation": -0.003
+      "lagged_spearman_correlation": -0.002
     },
     {
       "feature": "contested_marks_short_diff",
       "label": "Contested marks",
       "mae_increase_when_shuffled": 0.0113,
-      "lagged_spearman_correlation": 0.178
+      "lagged_spearman_correlation": 0.176
     },
     {
       "feature": "finishing_short_diff",
       "label": "Scoring above expectation",
       "mae_increase_when_shuffled": 0.0094,
-      "lagged_spearman_correlation": 0.108
+      "lagged_spearman_correlation": 0.109
     },
     {
       "feature": "disposal_efficiency_short_diff",
@@ -240,31 +240,31 @@
       "feature": "finals_match",
       "label": "Finals match",
       "mae_increase_when_shuffled": -0.0075,
-      "lagged_spearman_correlation": 0.011
+      "lagged_spearman_correlation": 0.012
     },
     {
       "feature": "team_rating_short_diff",
       "label": "Team AFL Player Rating",
       "mae_increase_when_shuffled": -0.0154,
-      "lagged_spearman_correlation": 0.389
+      "lagged_spearman_correlation": 0.39
     },
     {
       "feature": "intercept_short_diff",
       "label": "Intercept possessions",
       "mae_increase_when_shuffled": -0.0174,
-      "lagged_spearman_correlation": 0.238
+      "lagged_spearman_correlation": 0.239
     },
     {
       "feature": "lineup_continuity_diff",
       "label": "Lineup continuity",
       "mae_increase_when_shuffled": -0.0218,
-      "lagged_spearman_correlation": 0.144
+      "lagged_spearman_correlation": 0.143
     },
     {
       "feature": "ground_ball_short_diff",
       "label": "Ground-ball gets",
       "mae_increase_when_shuffled": -0.0265,
-      "lagged_spearman_correlation": 0.209
+      "lagged_spearman_correlation": 0.21
     },
     {
       "feature": "form_margin_short_diff",
@@ -308,87 +308,87 @@
       "feature": "RatingPoints",
       "label": "Team player rating",
       "spearman_correlation": 0.976,
-      "matches": 2879
+      "matches": 2885
     },
     {
       "feature": "MetresGained",
       "label": "Metres gained",
       "spearman_correlation": 0.927,
-      "matches": 2873
+      "matches": 2879
     },
     {
       "feature": "xScore",
       "label": "Expected score",
       "spearman_correlation": 0.874,
-      "matches": 1059
+      "matches": 1065
     },
     {
       "feature": "ShotsAtGoal",
       "label": "Scoring shots",
       "spearman_correlation": 0.864,
-      "matches": 2873
+      "matches": 2879
     },
     {
       "feature": "Inside50s",
       "label": "Inside 50s",
-      "spearman_correlation": 0.652,
-      "matches": 2879
+      "spearman_correlation": 0.651,
+      "matches": 2885
     },
     {
       "feature": "ContestedPossessions",
       "label": "Contested possessions",
-      "spearman_correlation": 0.537,
-      "matches": 2879
+      "spearman_correlation": 0.538,
+      "matches": 2885
     },
     {
       "feature": "DisposalEfficiency",
       "label": "Disposal efficiency",
       "spearman_correlation": 0.532,
-      "matches": 2879
+      "matches": 2885
     },
     {
       "feature": "Intercepts",
       "label": "Intercept possessions",
       "spearman_correlation": 0.532,
-      "matches": 2873
+      "matches": 2879
     },
     {
       "feature": "Turnovers",
       "label": "Turnovers",
       "spearman_correlation": -0.529,
-      "matches": 2873
+      "matches": 2879
     },
     {
       "feature": "ContestedMarks",
       "label": "Contested marks",
       "spearman_correlation": 0.359,
-      "matches": 2879
+      "matches": 2885
     },
     {
       "feature": "TotalClearances",
       "label": "Clearances",
-      "spearman_correlation": 0.331,
-      "matches": 2879
+      "spearman_correlation": 0.33,
+      "matches": 2885
     },
     {
       "feature": "PressureActs",
       "label": "Pressure acts",
-      "spearman_correlation": -0.326,
-      "matches": 2867
+      "spearman_correlation": -0.325,
+      "matches": 2873
     },
     {
       "feature": "CentreClearances",
       "label": "Centre clearances",
-      "spearman_correlation": 0.24,
-      "matches": 2879
+      "spearman_correlation": 0.241,
+      "matches": 2885
     }
   ],
   "data_sources": {
     "wheelo": "https://www.wheeloratings.com/",
     "squiggle": "https://api.squiggle.com.au/",
-    "source_files": 433,
-    "snapshot_sha256": "717c62dc00e71268f6f026ca84bf60730b5f9598508608aea30abc07af50ce0e",
-    "historical_matches": 3086,
-    "latest_completed_match": "2026-08-23T19:20:00+10:00"
+    "source_files": 435,
+    "snapshot_sha256": "8dcc460adf2ddfb73ac19f811421cdec52c29f5dd584be921dfee72372128c11",
+    "historical_matches": 3092,
+    "latest_completed_match": "2026-09-05T19:35:00+10:00"
   }
 }
