@@ -1,5 +1,7 @@
 # Cloudflare migration
 
+Project: `sam-speed-models`. Production URL: https://sam-speed-models.pages.dev. Initial deployment and public routes verified on 7 September 2026. The first GitHub refresh completed successfully and committed model artifacts to `main`.
+
 ## Architecture
 
 The public website is a static Cloudflare Pages deployment with no paid Workers,
@@ -28,7 +30,7 @@ Cloudflare Pages Git integration settings:
 - Production branch: `main`
 - Framework preset: None
 - Root directory: repository root
-- Build command: `pip install -r cloudflare/requirements.txt && python cloudflare/build.py`
+- Build command: `pip install -r cloudflare/requirements.txt && python cloudflare/build.py && python cloudflare/make_test_cases.py && node cloudflare/test_runtime.mjs`
 - Build output directory: `cloudflare/dist`
 - Python version: 3.11
 - Plan: Free
@@ -93,6 +95,8 @@ automatically transfer to the new origin; reselect them on the new site.
 Publishing to Cloudflare does not delete Azure resources or cancel Azure charges.
 The old Azure hostname cannot be transferred to Cloudflare. Share the new free
 `pages.dev` address (or connect a domain you own; domain renewal is separate).
+
+The inventory found `Sam-Speed`, `app-service-plan`, `sql-private-endpoint`, and private DNS/network resources in `resourcegroup1`. SQL server `speedserver` is in the separate `LearningProject` resource group.
 
 After the new site is verified, review and retire the old B1 App Service plan,
 web app, SQL database and its private endpoint/DNS resources if they are no longer

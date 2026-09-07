@@ -7,7 +7,7 @@ Two models share one website:
 - an AFL outcome and margin model; and
 - a personalised, metadata-based book recommender.
 
-Cloudflare migration: see [CLOUDFLARE.md](CLOUDFLARE.md) for deployment and updates. AFL predictions are at `/afl`; book recommendations are at `/books`. Python/Flask is retained for training, local use, and parity tests.
+Live site: [sam-speed-models.pages.dev](https://sam-speed-models.pages.dev/). See [CLOUDFLARE.md](CLOUDFLARE.md) for deployment and updates. AFL predictions are at `/afl`; book recommendations are at `/books`. Python/Flask is retained for training, local use, and parity tests.
 
 ## AFL model
 
@@ -16,7 +16,7 @@ Cloudflare migration: see [CLOUDFLARE.md](CLOUDFLARE.md) for deployment and upda
 - Estimator: a calibrated blend of regularised linear regression and histogram gradient boosting.
 - Inputs: opponent-adjusted results strength, rolling attack/defence, xScore, inside 50s, clearances, contested ball, scoring shots, player ratings, recent-lineup strength and continuity, rest, venue familiarity, and travel.
 - Leakage protection: every match feature is a lagged or rolling value known before the bounce. Matches in the same round are calculated from the same pre-round state.
-- Current 2022 holdout result: 75.2% tip accuracy and 25.32-point margin MAE across 207 matches.
+- Current 2022 holdout result: 75.2% tip accuracy and 25.34-point margin MAE across 207 matches.
 
 The full reproducible evaluation and feature-importance output is stored in `app/artifacts/model_report.json`. Same-match correlations in that report are descriptive only; they are not used as same-game inputs and do not establish causation.
 
