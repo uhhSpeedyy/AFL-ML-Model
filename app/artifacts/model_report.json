@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20260907-161913",
-  "trained_at": "2026-09-07T16:19:13.360551+00:00",
+  "model_version": "afl-20260908-045831",
+  "trained_at": "2026-09-08T04:58:31.499201+00:00",
   "holdout_season": 2022,
   "holdout_policy": "Estimator parameters and tuning were frozen using 2012-2021 before the one-pass 2022 test. Production fitting excludes 2022 rows.",
   "training_seasons": [
