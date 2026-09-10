@@ -174,6 +174,18 @@ def create_app(settings: Settings | None = None) -> Flask:
     def index():
         return render_template("landing.html")
 
+    @app.get("/projects/mm-color-sorter")
+    def mm_color_sorter():
+        return render_template("project.html", project="sorter",
+                               title="M&M Color Sorter",
+                               description="A hardware project to sort M&Ms by colour.")
+
+    @app.get("/projects/fpga-simon-says")
+    def fpga_simon_says():
+        return render_template("project.html", project="simon",
+                               title="FPGA Simon Says",
+                               description="A Simon Says memory game implemented on an FPGA.")
+
     @app.get("/afl")
     def afl_predictions():
         payload, storage_source = prediction_payload()

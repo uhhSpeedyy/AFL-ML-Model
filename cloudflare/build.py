@@ -71,6 +71,8 @@ def build():
     settings = replace(Settings(), database_enabled=False, database_read_enabled=False, db_server=None)
     client = create_app(settings).test_client()
     for route, output in {"/": "index.html", "/afl": "afl.html", "/books": "books.html",
+                          "/projects/mm-color-sorter": "projects/mm-color-sorter.html",
+                          "/projects/fpga-simon-says": "projects/fpga-simon-says.html",
                           "/api/predictions": "api/predictions.json", "/api/model": "api/model.json",
                           "/api/books/model": "api/books/model.json", "/health": "health.json", "/ready": "ready.json"}.items():
         response = client.get(route)

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ description }}">
+    <meta name="theme-color" content="#f3efe5">
+    <title>{{ title }} · Sam Speed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+</head>
+<body>
+    <main class="landing project">
+        <a class="back-link" href="/">← All projects</a>
+        <header class="landing-header">
+            <p>Sam Speed · {{ 'Hardware' if project == 'sorter' else 'Digital logic' }}</p>
+            <h1>{{ title }}</h1>
+        </header>
+        {% if project == 'sorter' %}
+        <section aria-label="Project demonstration">
+            <div class="project-video">
+                <iframe src="https://www.youtube-nocookie.com/embed/rOlJ2TqnkqM" title="M&amp;M Color Sorter project demonstration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <p class="video-caption">Project demonstration · <a href="https://www.youtube.com/watch?v=rOlJ2TqnkqM" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></p>
+        </section>
+        <section class="project-notes" aria-labelledby="about-project">
+            <h2 id="about-project">About the project</h2>
+            <p>An Arduino Uno project that sorts M&amp;Ms by colour using an APDS 9960 RGB sensor and two stepper motors.</p>
+            <p>The RGB sensor provides the colour measurements, while the Arduino coordinates the motors. The build combines a NEMA-17 12V stepper motor and driver with a smaller 2BYJ-48 5V stepper motor and driver, supported by acrylic pipe and 3D-printed parts.</p>
+        </section>
+        <section class="project-notes" aria-labelledby="materials-title">
+            <h2 id="materials-title">Bill of materials</h2>
+            <table class="materials">
+                <caption>Recorded component costs</caption>
+                <thead><tr><th scope="col">Component</th><th scope="col">Cost</th></tr></thead>
+                <tbody>
+                    <tr><td>APDS 9960 RGB sensor</td><td>$7.50</td></tr>
+                    <tr><td>NEMA-17 12V stepper motor + driver</td><td>$14.00</td></tr>
+                    <tr><td>Arduino Uno</td><td>$27.60</td></tr>
+                    <tr><td>2BYJ-48 5V stepper motor + driver</td><td>$2.40</td></tr>
+                    <tr><td>15mm acrylic pipe</td><td>$8.49</td></tr>
+                    <tr><td>12V power supply</td><td>$9.99</td></tr>
+                    <tr><td>3D printing materials</td><td>$10.16</td></tr>
+                    <tr><td>LED</td><td>$0.20</td></tr>
+                </tbody>
+                <tfoot><tr><th scope="row">Total</th><td>$80.34</td></tr></tfoot>
+            </table>
+        </section>
+        {% else %}
+        <section class="project-notes" aria-labelledby="about-project">
+            <h2 id="about-project">The memory game, in hardware</h2>
+            <p>A Verilog implementation of Simon Says using four LEDs, four push buttons and a seven-segment score display.</p>
+            <p>The player watches an LED sequence and repeats it using the buttons. The state machine handles sequence playback, player input, round progression and game-over feedback, with memory for up to 16 steps.</p>
+        </section>
+        <section class="project-notes" aria-labelledby="code-title">
+            <h2 id="code-title">Inside the Verilog</h2>
+            <p>The design separates game control, button filtering, sequence generation and score display into individual modules. These excerpts come directly from the project source.</p>
+            <article class="code-sample">
+                <h3>Game sequence</h3>
+                <p>The game controller stores a two-bit LED choice for each step in a 16-entry sequence memory. At the start of a round, it adds the next choice and resets the playback counters.</p>
+                <details>
+                    <summary>View SS_SM.v excerpt</summary>
+                    <pre tabindex="0" aria-label="Game sequence Verilog excerpt"><code>Generate: begin
+    SequenceMemory[CurrentLevel] &lt;= RandomVal;
+    StepCounter &lt;= 0;
+    FlashTimer &lt;= 0;
+    state &lt;= Sequence; 
+end</code></pre>
+                    <a href="/static/projects/fpga-simon-says/SS_SM.v" download>Download SS_SM.v</a>
+                </details>
+            </article>
+            <article class="code-sample">
+                <h3>Pseudo-random choices</h3>
+                <p>A 16-bit linear-feedback shift register generates a deterministic pseudo-random stream. The top-level module passes its lowest two bits to the game controller to select one of four LEDs.</p>
+                <details>
+                    <summary>View RNG.v excerpt</summary>
+                    <pre tabindex="0" aria-label="Pseudo-random choices Verilog excerpt"><code>wire feedback = out[15] ^ out[14] ^ out[13] ^ out[12];
+wire [15:0] nextOut;
+
+assign nextOut = {out[14:0],feedback};</code></pre>
+                    <a href="/static/projects/fpga-simon-says/RNG.v" download>Download RNG.v</a>
+                </details>
+            </article>
+            <article class="code-sample">
+                <h3>Button filtering</h3>
+                <p>Each of the four buttons has its own debouncer. A counter waits for an input change to persist before updating the filtered button signal, reducing the effect of mechanical contact bounce.</p>
+                <details>
+                    <summary>View debouncer.v excerpt</summary>
+                    <pre tabindex="0" aria-label="Button filtering Verilog excerpt"><code>always @(posedge clock) begin
+    if (NoisyButton !== ButtonState) begin
+        if (count &lt; MAX) begin
+            count &lt;= count + 1;
+        end else begin
+            ButtonState &lt;= NoisyButton;
+            CleanButton &lt;= NoisyButton;
+            count &lt;= 0;
+        end
+    end else begin
+        count &lt;= 0;
+    end
+end</code></pre>
+                    <a href="/static/projects/fpga-simon-says/debouncer.v" download>Download debouncer.v</a>
+                </details>
+            </article>
+            <div class="source-download">
+                <h3>Explore the source</h3>
+                <p>The source bundle includes all eight design modules and three component testbenches. Top_SS.v connects the game controller to four buttons, four LEDs and a multiplexed seven-segment score display.</p>
+                <a href="/static/projects/fpga-simon-says/simon-says-verilog.zip" download>Download Verilog source (.zip)</a>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+</body>
+</html>
