@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20260914-184151",
-  "generated_at": "2026-09-14T18:41:57.696905+00:00",
+  "model_version": "afl-20260915-050824",
+  "generated_at": "2026-09-15T05:08:26.444621+00:00",
   "round_name": "Preliminary Finals",
   "season": 2026,
   "predictions": [
@@ -13,14 +13,14 @@
       "venue": "S.C.G.",
       "home_team": "Sydney",
       "away_team": "Fremantle",
-      "home_win_probability": 65.7,
-      "away_win_probability": 33.2,
+      "home_win_probability": 66.2,
+      "away_win_probability": 32.7,
       "draw_probability": 1.1,
-      "expected_home_margin": 13.8,
-      "expected_margin": 13.8,
+      "expected_home_margin": 14.3,
+      "expected_margin": 14.3,
       "predicted_winner": "Sydney",
-      "interval_80_low": -28.5,
-      "interval_80_high": 56.1,
+      "interval_80_low": -28.0,
+      "interval_80_high": 56.6,
       "factors": [
         {
           "feature": "shots_short_diff",
@@ -83,8 +83,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20260914-184151",
-      "generated_at": "2026-09-14T18:41:57.696905+00:00"
+      "model_version": "afl-20260915-050824",
+      "generated_at": "2026-09-15T05:08:26.444621+00:00"
     },
     {
       "game_id": "38727",
@@ -95,14 +95,14 @@
       "venue": "M.C.G.",
       "home_team": "Hawthorn",
       "away_team": "Brisbane Lions",
-      "home_win_probability": 49.6,
-      "away_win_probability": 49.2,
+      "home_win_probability": 50.3,
+      "away_win_probability": 48.5,
       "draw_probability": 1.2,
-      "expected_home_margin": 0.2,
-      "expected_margin": 0.2,
+      "expected_home_margin": 0.8,
+      "expected_margin": 0.8,
       "predicted_winner": "Hawthorn",
-      "interval_80_low": -42.1,
-      "interval_80_high": 42.5,
+      "interval_80_low": -41.5,
+      "interval_80_high": 43.0,
       "factors": [
         {
           "feature": "attack_short_diff",
@@ -165,8 +165,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20260914-184151",
-      "generated_at": "2026-09-14T18:41:57.696905+00:00"
+      "model_version": "afl-20260915-050824",
+      "generated_at": "2026-09-15T05:08:26.444621+00:00"
     }
   ]
 }
