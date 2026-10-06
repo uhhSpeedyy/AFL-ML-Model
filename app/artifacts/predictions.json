@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20260929-055835",
-  "generated_at": "2026-09-29T05:58:36.996781+00:00",
+  "model_version": "afl-20261006-063949",
+  "generated_at": "2026-10-06T06:39:51.361205+00:00",
   "round_name": "No upcoming round",
   "predictions": []
 }
