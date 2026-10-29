@@ -398,3 +398,40 @@ def upcoming_round(games: Iterable[dict[str, Any]], now: datetime | None = None)
     first_round = candidates[0].get("round")
     round_games = [game for game in candidates if game.get("round") == first_round]
     return sorted(round_games, key=lambda game: game["start_time"])
+
+
+def fixture_schedule(
+    games: Iterable[dict[str, Any]],
+    *,
+    confirmed_through_round: int = 16,
+) -> list[dict[str, Any]]:
+    """Return the public fixture without presenting floating dates as confirmed."""
+    fixtures: list[dict[str, Any]] = []
+    for original in games:
+        game = dict(original)
+        try:
+            start_time = parse_squiggle_datetime(game)
+        except (TypeError, ValueError):
+            start_time = None
+        round_number = int(game.get("round") or 0)
+        fixtures.append(
+            {
+                "game_id": str(game.get("id")),
+                "season": int(game.get("year") or (start_time.year if start_time else 0)),
+                "round_number": round_number,
+                "round_name": str(game.get("roundname") or f"Round {round_number}"),
+                "start_time": start_time.isoformat() if start_time else None,
+                "date_confirmed": bool(start_time and round_number <= confirmed_through_round),
+                "venue": str(game.get("venue") or "Venue TBC"),
+                "home_team": canonical_team(game.get("hteam")),
+                "away_team": canonical_team(game.get("ateam")),
+            }
+        )
+    return sorted(
+        fixtures,
+        key=lambda item: (
+            item["round_number"],
+            item["start_time"] or "9999",
+            item["game_id"],
+        ),
+    )

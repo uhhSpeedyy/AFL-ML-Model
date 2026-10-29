@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 30
     env:
       AFL_DATABASE_ENABLED: 'false'
+      AFL_CURRENT_SEASON: '2026'
+      AFL_FIXTURE_SEASON: '2027'
       OMP_NUM_THREADS: '2'
       OPENBLAS_NUM_THREADS: '2'
     steps:

@@ -1,0 +1,300 @@
+{
+  "season": 2027,
+  "as_of": "2026-10-29",
+  "as_of_label": "29 October 2026",
+  "status": "provisional_post_trade_pre_draft",
+  "note": "Confirmed trades, free-agent moves, retirements and delistings are applied. The 2026 national and rookie drafts and later SSP signings are not yet included.",
+  "sources": [
+    "https://www.afl.com.au/news/1628837/ins-and-outs-every-clubs-full-list-changes-ahead-of-2027",
+    "https://www.afl.com.au/news/features/retirements-and-delistings"
+  ],
+  "clubs": {
+    "Adelaide": {
+      "ins": [{"player": "Harry Cunningham", "from": "Sydney", "status": "committed rookie signing"}],
+      "outs": [
+        {"player": "Jordon Butts", "to": "Western Bulldogs", "status": "free agent"},
+        {"player": "Chayce Jones", "status": "delisted"},
+        {"player": "Luke Pedlar", "to": "Port Adelaide", "status": "trade"},
+        {"player": "Lachlan Sholl", "status": "delisted"},
+        {"player": "Taylor Walker", "status": "retired"},
+        {"player": "Tyler Welsh", "status": "delisted"}
+      ]
+    },
+    "Brisbane Lions": {
+      "ins": [],
+      "outs": [
+        {"player": "Luke Beecken", "status": "delisted"},
+        {"player": "Keidean Coleman", "to": "Essendon", "status": "trade"},
+        {"player": "Koby Evans", "status": "rookie redraft", "retained": true},
+        {"player": "Darragh Joyce", "status": "delisted"},
+        {"player": "Luke Lloyd", "status": "rookie redraft", "retained": true},
+        {"player": "Sam Marshall", "to": "St Kilda", "status": "trade"},
+        {"player": "Will McLachlan", "to": "Melbourne", "status": "trade"},
+        {"player": "Lachie Neale", "to": "Collingwood", "status": "free agent"}
+      ]
+    },
+    "Carlton": {
+      "ins": [
+        {"player": "Joel Amartey", "from": "Sydney", "status": "free agent"},
+        {"player": "Lachie Whitfield", "from": "GWS", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Jordan Boyd", "status": "delisted"},
+        {"player": "Ben Camporeale", "status": "delisted"},
+        {"player": "Lucas Camporeale", "status": "delisted"},
+        {"player": "Harry Charleson", "status": "delisted"},
+        {"player": "Matt Duffy", "status": "delisted"},
+        {"player": "Lachie Fogarty", "status": "delisted"},
+        {"player": "Elijah Hollands", "status": "delisted"},
+        {"player": "Hudson O'Keeffe", "to": "Western Bulldogs", "status": "trade"},
+        {"player": "Flynn Riley", "to": "Collingwood", "status": "trade"},
+        {"player": "Adam Saad", "status": "delisted"},
+        {"player": "Zac Williams", "status": "delisted"},
+        {"player": "Lewis Young", "status": "delisted"},
+        {"player": "Flynn Young", "status": "delisted"}
+      ]
+    },
+    "Collingwood": {
+      "ins": [
+        {"player": "Jesse Hogan", "from": "GWS", "status": "trade"},
+        {"player": "Lachie Neale", "from": "Brisbane Lions", "status": "free agent"},
+        {"player": "Flynn Riley", "from": "Carlton", "status": "trade"},
+        {"player": "Finnbar Roarty", "from": "new player", "status": "category B rookie"}
+      ],
+      "outs": [
+        {"player": "Joel Cochran", "status": "delisted"},
+        {"player": "Harrison Coe", "status": "delisted"},
+        {"player": "Harry DeMattia", "status": "rookie redraft", "retained": true},
+        {"player": "Bobby Hill", "status": "delisted"},
+        {"player": "Noah Howes", "status": "delisted"},
+        {"player": "Wil Parker", "status": "delisted"},
+        {"player": "Scott Pendlebury", "to": "Gold Coast", "status": "trade"},
+        {"player": "Mitch Podhajski", "status": "delisted"},
+        {"player": "Jakob Ryan", "status": "delisted"},
+        {"player": "Steele Sidebottom", "status": "retired"},
+        {"player": "Iliro Smit", "status": "delisted"},
+        {"player": "Lachie Sullivan", "status": "delisted"}
+      ]
+    },
+    "Essendon": {
+      "ins": [
+        {"player": "Jack Bowes", "from": "Geelong", "status": "trade"},
+        {"player": "Keidean Coleman", "from": "Brisbane Lions", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Nik Cox", "status": "delisted"},
+        {"player": "Tom Edwards", "status": "delisted"},
+        {"player": "Saad El-Hawli", "status": "delisted"},
+        {"player": "Kayle Gerreyn", "status": "delisted"},
+        {"player": "Jade Gresham", "status": "delisted"},
+        {"player": "Matt Guelfi", "status": "delisted"},
+        {"player": "Liam McMahon", "status": "delisted"},
+        {"player": "Zach Merrett", "to": "Hawthorn", "status": "trade"},
+        {"player": "Jordan Ridley", "to": "Geelong", "status": "trade"},
+        {"player": "Elijah Tsatas", "status": "delisted"}
+      ]
+    },
+    "Fremantle": {
+      "ins": [{"player": "Dominic Bedendo", "from": "Western Bulldogs", "status": "delisted free agent"}],
+      "outs": [
+        {"player": "Bailey Banfield", "status": "delisted"},
+        {"player": "Jaren Carr", "status": "rookie redraft", "retained": true},
+        {"player": "Ryda Luke", "status": "delisted"},
+        {"player": "Ollie Murphy", "status": "delisted"},
+        {"player": "Nathan O'Driscoll", "to": "Richmond", "status": "trade"},
+        {"player": "Sam Sturt", "status": "delisted"},
+        {"player": "Sam Switkowski", "status": "retired"}
+      ]
+    },
+    "Geelong": {
+      "ins": [
+        {"player": "Toby Greene", "from": "GWS", "status": "free agent"},
+        {"player": "Rowan Marshall", "from": "St Kilda", "status": "trade"},
+        {"player": "Jordan Ridley", "from": "Essendon", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Jed Bews", "status": "delisted"},
+        {"player": "Jack Bowes", "to": "Essendon", "status": "trade"},
+        {"player": "Mitch Knevitt", "status": "delisted"},
+        {"player": "Jake Kolodjashnij", "status": "retired"},
+        {"player": "Keighton Matofai-Forbes", "status": "delisted"},
+        {"player": "Rhys Stanley", "status": "retired"},
+        {"player": "Tyson Stengle", "status": "delisted"},
+        {"player": "George Stevens", "status": "delisted"}
+      ]
+    },
+    "Gold Coast": {
+      "ins": [
+        {"player": "Sam Butler", "from": "Hawthorn", "status": "trade"},
+        {"player": "Scott Pendlebury", "from": "Collingwood", "status": "trade"},
+        {"player": "Aidan Schubert", "from": "Hawthorn", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Cooper Bell", "status": "delisted"},
+        {"player": "Asher Eastham", "status": "delisted"},
+        {"player": "Caleb Graham", "status": "delisted"},
+        {"player": "Nick Holman", "status": "retired"},
+        {"player": "Ben King", "to": "Hawthorn", "status": "free agent"}
+      ]
+    },
+    "GWS": {
+      "ins": [{"player": "Alex Mirkov", "from": "Carlton", "status": "committed signing"}],
+      "outs": [
+        {"player": "Kieren Briggs", "to": "Richmond", "status": "free agent"},
+        {"player": "Toby Greene", "to": "Geelong", "status": "free agent"},
+        {"player": "Jesse Hogan", "to": "Collingwood", "status": "trade"},
+        {"player": "Conor Stone", "status": "delisted"},
+        {"player": "Jake Stringer", "to": "St Kilda", "status": "delisted"},
+        {"player": "Lachie Whitfield", "to": "Carlton", "status": "trade"}
+      ]
+    },
+    "Hawthorn": {
+      "ins": [
+        {"player": "Ben King", "from": "Gold Coast", "status": "free agent"},
+        {"player": "Josh Goater", "from": "North Melbourne", "status": "trade"},
+        {"player": "Zach Merrett", "from": "Essendon", "status": "trade"},
+        {"player": "Ollie Purcell", "from": "new player", "status": "category B rookie"}
+      ],
+      "outs": [
+        {"player": "Cody Anderson", "status": "delisted"},
+        {"player": "James Blanck", "status": "delisted"},
+        {"player": "Sam Butler", "to": "Gold Coast", "status": "trade"},
+        {"player": "Henry Hustwaite", "status": "delisted"},
+        {"player": "Finn Maginness", "to": "Western Bulldogs", "status": "trade"},
+        {"player": "Flynn Perez", "status": "delisted"},
+        {"player": "Max Ramsden", "status": "delisted"},
+        {"player": "Bodie Ryan", "to": "Melbourne", "status": "trade"},
+        {"player": "Aidan Schubert", "to": "Gold Coast", "status": "trade"},
+        {"player": "Jaime Uhr-Henry", "status": "delisted"}
+      ]
+    },
+    "Melbourne": {
+      "ins": [
+        {"player": "Zane Duursma", "from": "North Melbourne", "status": "trade"},
+        {"player": "Will McLachlan", "from": "Brisbane Lions", "status": "trade"},
+        {"player": "Bodie Ryan", "from": "Hawthorn", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Tom Campbell", "status": "retired"},
+        {"player": "Jack Henderson", "status": "delisted"},
+        {"player": "Aidan Johnson", "status": "delisted"},
+        {"player": "Steven May", "status": "retired"},
+        {"player": "Shane McAdam", "status": "retired"},
+        {"player": "Tom McDonald", "status": "retired"},
+        {"player": "Jake Melksham", "status": "retired"},
+        {"player": "Andy Moniz-Wakefield", "status": "delisted"},
+        {"player": "Riley Onley", "status": "delisted"},
+        {"player": "Trent Rivers", "to": "West Coast", "status": "trade"},
+        {"player": "Jack Viney", "to": "West Coast", "status": "trade"},
+        {"player": "Kalani White", "status": "delisted"}
+      ]
+    },
+    "North Melbourne": {
+      "ins": [{"player": "Nick Blakey", "from": "Sydney", "status": "trade"}],
+      "outs": [
+        {"player": "Callum Coleman-Jones", "status": "delisted"},
+        {"player": "Zane Duursma", "to": "Melbourne", "status": "trade"},
+        {"player": "Zac Fisher", "status": "delisted"},
+        {"player": "Brayden George", "status": "delisted"},
+        {"player": "Josh Goater", "to": "Hawthorn", "status": "trade"},
+        {"player": "Robert Hansen jnr", "status": "delisted"},
+        {"player": "Cooper Harvey", "status": "delisted"},
+        {"player": "Bailey Scott", "status": "delisted"},
+        {"player": "Luke Urquhart", "status": "delisted"}
+      ]
+    },
+    "Port Adelaide": {
+      "ins": [{"player": "Luke Pedlar", "from": "Adelaide", "status": "trade"}],
+      "outs": [
+        {"player": "Tom Anastasopoulos", "status": "delisted"},
+        {"player": "Benny Barrett", "status": "delisted"},
+        {"player": "Will Brodie", "status": "retired"},
+        {"player": "Zak Butters", "to": "Western Bulldogs", "status": "free agent"},
+        {"player": "Mani Liddy", "status": "delisted"},
+        {"player": "Ollie Lord", "status": "delisted"},
+        {"player": "Will Lorenz", "status": "delisted"},
+        {"player": "Jackson Mead", "status": "delisted"},
+        {"player": "Jacob Moss", "status": "delisted"},
+        {"player": "Ivan Soldo", "status": "retired"},
+        {"player": "Xavier Walsh", "status": "delisted"}
+      ]
+    },
+    "Richmond": {
+      "ins": [
+        {"player": "Kieren Briggs", "from": "GWS", "status": "free agent"},
+        {"player": "Nathan O'Driscoll", "from": "Fremantle", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Nathan Broad", "status": "retired"},
+        {"player": "Liam Fawcett", "status": "delisted"},
+        {"player": "Steely Green", "status": "delisted"},
+        {"player": "Oliver Hayes-Brown", "status": "delisted"},
+        {"player": "Dion Prestia", "status": "retired"},
+        {"player": "Samson Ryan", "status": "delisted"},
+        {"player": "Kaleb Smith", "status": "delisted"},
+        {"player": "Tyler Sonsie", "status": "delisted"},
+        {"player": "James Trezise", "status": "delisted"}
+      ]
+    },
+    "St Kilda": {
+      "ins": [
+        {"player": "Sam Marshall", "from": "Brisbane Lions", "status": "trade"},
+        {"player": "Jake Stringer", "from": "GWS", "status": "committed signing"}
+      ],
+      "outs": [
+        {"player": "Jack Carroll", "status": "delisted"},
+        {"player": "Paddy Dow", "status": "delisted"},
+        {"player": "Dougal Howard", "status": "retired"},
+        {"player": "Isaac Keeler", "status": "delisted"},
+        {"player": "Rowan Marshall", "to": "Geelong", "status": "trade"},
+        {"player": "Patrick Said", "status": "delisted"}
+      ]
+    },
+    "Sydney": {
+      "ins": [],
+      "outs": [
+        {"player": "Taylor Adams", "status": "retired"},
+        {"player": "Joel Amartey", "to": "Carlton", "status": "free agent"},
+        {"player": "Nick Blakey", "to": "North Melbourne", "status": "trade"},
+        {"player": "Harry Cunningham", "to": "Adelaide", "status": "delisted"}
+      ]
+    },
+    "West Coast": {
+      "ins": [
+        {"player": "Trent Rivers", "from": "Melbourne", "status": "trade"},
+        {"player": "Jack Viney", "from": "Melbourne", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Harry Barnett", "status": "delisted"},
+        {"player": "Tyler Brockman", "status": "delisted"},
+        {"player": "Jamie Cripps", "status": "retired"},
+        {"player": "Clay Hall", "status": "delisted"},
+        {"player": "Harvey Johnston", "status": "delisted"},
+        {"player": "Matt Owies", "status": "delisted"},
+        {"player": "Harry Schoenberg", "status": "delisted"},
+        {"player": "Jack Williams", "status": "delisted"}
+      ]
+    },
+    "Western Bulldogs": {
+      "ins": [
+        {"player": "Zak Butters", "from": "Port Adelaide", "status": "free agent"},
+        {"player": "Jordon Butts", "from": "Adelaide", "status": "free agent"},
+        {"player": "Finn Maginness", "from": "Hawthorn", "status": "trade"},
+        {"player": "Hudson O'Keeffe", "from": "Carlton", "status": "trade"}
+      ],
+      "outs": [
+        {"player": "Oskar Baker", "status": "delisted"},
+        {"player": "Nick Coffield", "status": "delisted"},
+        {"player": "Harvey Gallagher", "status": "delisted"},
+        {"player": "Riley Garcia", "status": "rookie redraft", "retained": true},
+        {"player": "Ryan Gardner", "status": "delisted"},
+        {"player": "James Harmes", "status": "retired"},
+        {"player": "Tom Liberatore", "status": "retired"},
+        {"player": "Lachie McNeil", "status": "delisted"},
+        {"player": "Lachlan Smith", "status": "delisted"},
+        {"player": "Adam Treloar", "status": "retired"},
+        {"player": "Zac Walker", "status": "delisted"}
+      ]
+    }
+  }
+}

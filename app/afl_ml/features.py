@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import re
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -353,6 +354,11 @@ def _player_key(player: dict[str, Any]) -> str:
     return str(value)
 
 
+def _normalise_player_name(value: Any) -> str:
+    cleaned = str(value or "").casefold().replace("’", "'")
+    return re.sub(r"[^a-z0-9]+", " ", cleaned).strip()
+
+
 @dataclass
 class TeamState:
     short: dict[str, float] = field(default_factory=dict)
@@ -374,6 +380,7 @@ class FeatureEngine:
     def __init__(self) -> None:
         self.teams: dict[str, TeamState] = defaultdict(TeamState)
         self.players: dict[tuple[str, str], PlayerState] = defaultdict(PlayerState)
+        self.player_names: dict[tuple[str, str], str] = {}
         self.venue_games: dict[tuple[str, str], int] = defaultdict(int)
         self.processed_match_ids: set[str] = set()
         self.current_season: int | None = None
@@ -398,6 +405,68 @@ class FeatureEngine:
             return None, None, state.continuity
         ratings.sort(reverse=True)
         return float(np.mean(ratings)), float(np.mean(ratings[:6])), state.continuity
+
+    def _find_player_key(self, team: str, player_name: str) -> str | None:
+        wanted = _normalise_player_name(player_name)
+        for (candidate_team, key), name in self.player_names.items():
+            if candidate_team == team and name == wanted:
+                return key
+        return None
+
+    def apply_roster_changes(self, payload: dict[str, Any] | None) -> dict[str, int]:
+        """Project the last known lineups through confirmed off-season movements."""
+        if not payload:
+            return {"clubs": 0, "players_in": 0, "players_out": 0}
+
+        clubs = payload.get("clubs", {})
+        original_lineups = {
+            canonical_team(team): list(self.teams[canonical_team(team)].last_lineup)
+            for team in clubs
+        }
+        removed = 0
+        added = 0
+
+        for raw_team, changes in clubs.items():
+            team = canonical_team(raw_team)
+            lineup = self.teams[team].last_lineup
+            for movement in changes.get("outs", []):
+                if movement.get("retained", False):
+                    continue
+                key = self._find_player_key(team, str(movement.get("player", "")))
+                if key and key in lineup:
+                    lineup.remove(key)
+                    removed += 1
+
+        for raw_team, changes in clubs.items():
+            team = canonical_team(raw_team)
+            lineup = self.teams[team].last_lineup
+            target_size = len(original_lineups.get(team, [])) or 23
+            for movement in changes.get("ins", []):
+                player_name = str(movement.get("player", ""))
+                source_team = canonical_team(movement.get("from"))
+                source_key = self._find_player_key(source_team, player_name)
+                key = source_key or f"roster:{_normalise_player_name(player_name)}"
+                if source_key:
+                    source_state = self.players[(source_team, source_key)]
+                    self.players[(team, key)] = PlayerState(
+                        rating=source_state.rating,
+                        games=source_state.games,
+                    )
+                else:
+                    self.players[(team, key)] = PlayerState()
+                self.player_names[(team, key)] = _normalise_player_name(player_name)
+                if key not in lineup:
+                    lineup.append(key)
+                    added += 1
+
+            lineup.sort(key=lambda key: self.players[(team, key)].rating, reverse=True)
+            del lineup[target_size:]
+            original = set(original_lineups.get(team, []))
+            self.teams[team].continuity = (
+                len(original.intersection(lineup)) / len(original) if original else None
+            )
+
+        return {"clubs": len(clubs), "players_in": added, "players_out": removed}
 
     @staticmethod
     def _state_value(state: TeamState, name: str, window: str = "short") -> float | None:
@@ -522,6 +591,7 @@ class FeatureEngine:
         for player in players:
             key = _player_key(player)
             lineup.append(key)
+            self.player_names[(team, key)] = _normalise_player_name(player.get("Player"))
             actual_rating = _number(player.get("RatingPoints"))
             if actual_rating is None:
                 continue

@@ -15,6 +15,7 @@ if str(APP_ROOT) not in sys.path:
 from afl_ml.artifacts import save_json, save_model  # noqa: E402
 from afl_ml.data_sources import (  # noqa: E402
     PublicDataClient,
+    fixture_schedule,
     load_historical_matches,
     upcoming_round,
 )
@@ -25,6 +26,7 @@ from afl_ml.features import (  # noqa: E402
 )
 from afl_ml.modeling import train_model  # noqa: E402
 from afl_ml.prediction import generate_predictions  # noqa: E402
+from afl_ml.rosters import load_roster_changes, roster_summary  # noqa: E402
 from afl_ml.settings import Settings  # noqa: E402
 
 
@@ -32,6 +34,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train and evaluate the AFL margin model")
     parser.add_argument("--start-season", type=int)
     parser.add_argument("--end-season", type=int)
+    parser.add_argument("--fixture-season", type=int)
     parser.add_argument("--holdout-season", type=int)
     parser.add_argument("--force", action="store_true", help="Refresh cached source files")
     parser.add_argument("--persist-db", action="store_true", help="Write the run to Azure SQL")
@@ -45,6 +48,7 @@ def main() -> int:
         settings,
         start_season=args.start_season or settings.start_season,
         current_season=args.end_season or settings.current_season,
+        fixture_season=args.fixture_season or settings.fixture_season,
         holdout_season=args.holdout_season or settings.holdout_season,
     )
     client = PublicDataClient(settings, force=args.force)
@@ -72,10 +76,16 @@ def main() -> int:
         "latest_completed_match": max(match["start_time"] for match in matches).isoformat(),
     }
 
-    games = upcoming_round(
-        client.squiggle_games(settings.current_season, mutable=True)
+    fixture_games = client.squiggle_games(settings.fixture_season, mutable=True)
+    games = upcoming_round(fixture_games)
+    roster_changes = load_roster_changes(settings.roster_path())
+    predictions = generate_predictions(
+        bundle,
+        games,
+        roster_changes=roster_changes,
     )
-    predictions = generate_predictions(bundle, games)
+    predictions["fixture"] = fixture_schedule(fixture_games)
+    predictions["roster_update"] = roster_summary(roster_changes)
     save_model(bundle, settings.model_path)
     save_json(report, settings.report_path)
     save_json(predictions, settings.predictions_path)

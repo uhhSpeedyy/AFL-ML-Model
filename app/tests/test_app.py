@@ -22,6 +22,31 @@ def test_landing_afl_and_health_render_snapshot(tmp_path):
             "season": 2026,
             "round_name": "Round 24",
             "predictions": [],
+            "roster_update": {"as_of": "2026-10-29"},
+            "fixture": [
+                {
+                    "game_id": "1",
+                    "season": 2027,
+                    "round_number": 1,
+                    "round_name": "Round 1",
+                    "start_time": "2027-03-17T19:30:00+11:00",
+                    "date_confirmed": True,
+                    "venue": "S.C.G.",
+                    "home_team": "Sydney",
+                    "away_team": "Geelong",
+                },
+                {
+                    "game_id": "2",
+                    "season": 2027,
+                    "round_number": 17,
+                    "round_name": "Round 17",
+                    "start_time": "2027-07-01T12:00:00+10:00",
+                    "date_confirmed": False,
+                    "venue": "M.C.G.",
+                    "home_team": "Richmond",
+                    "away_team": "Carlton",
+                },
+            ],
         },
         settings.predictions_path,
     )
@@ -62,6 +87,9 @@ def test_landing_afl_and_health_render_snapshot(tmp_path):
     assert b"pre-match football indicators driving every call" not in afl.data
     assert b"Key prediction indicators" in afl.data
     assert b"extra average error after shuffling" in afl.data
+    assert b"2027 fixture" in afl.data
+    assert b"Date &amp; time TBC" in afl.data
+    assert b"2027 roster-adjusted" in afl.data
 
     health = client.get("/health")
     assert health.status_code == 200

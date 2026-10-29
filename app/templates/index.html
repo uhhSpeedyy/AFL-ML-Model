@@ -40,11 +40,19 @@
         <main>
             <section class="round-heading" aria-labelledby="round-title">
                 <div>
-                    <p class="section-kicker">This week</p>
+                    <p class="section-kicker">Next round</p>
                     <h2 id="round-title">{{ payload.get('round_name', 'Upcoming games') }}</h2>
                 </div>
                 <p class="round-note">Home, away and draw probabilities add to 100%.</p>
             </section>
+
+            {% if payload.get('roster_update') %}
+            <p class="roster-note">
+                <strong>2027 roster-adjusted:</strong>
+                confirmed trades, retirements and delistings through {{ payload.roster_update.as_of_label }} are included.
+                Lists remain provisional until the draft and later signings.
+            </p>
+            {% endif %}
 
             {% if predictions %}
             <div class="fixture-grid">
@@ -124,6 +132,51 @@
             </section>
             {% endif %}
 
+            {% if payload.get('fixture') %}
+            <section class="season-fixture" aria-labelledby="fixture-title">
+                <div class="fixture-heading">
+                    <div>
+                        <p class="section-kicker">Season schedule</p>
+                        <h2 id="fixture-title">{{ payload.fixture[0].season }} fixture</h2>
+                    </div>
+                    <label class="round-select">
+                        <span>Choose round</span>
+                        <select id="fixture-round-select">
+                            {% for group in payload.fixture|groupby('round_number') %}
+                            <option value="{{ group.grouper }}">{{ group.list[0].round_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+                <p class="fixture-note">Rounds 1–16 have confirmed dates and times. Match-ups and venues are confirmed for Rounds 17–24, with dates and times still floating.</p>
+
+                {% for group in payload.fixture|groupby('round_number') %}
+                <div class="fixture-round-panel" data-fixture-round="{{ group.grouper }}"{% if not loop.first %} hidden{% endif %}>
+                    <h3>{{ group.list[0].round_name }}</h3>
+                    <div class="fixture-list">
+                        {% for match in group.list %}
+                        <article class="fixture-row">
+                            <div class="fixture-date">
+                                {% if match.date_confirmed and match.start_time %}
+                                <time datetime="{{ match.start_time }}">{{ display_time(match.start_time) }}</time>
+                                {% else %}
+                                <span>Date &amp; time TBC</span>
+                                {% endif %}
+                                <small>{{ match.venue }}</small>
+                            </div>
+                            <div class="fixture-teams">
+                                <strong>{{ match.home_team }}</strong>
+                                <span>vs</span>
+                                <strong>{{ match.away_team }}</strong>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+
             {% if report.get('top_predictive_features') %}
             <section class="indicators-section" aria-labelledby="indicators-title">
                 <div class="indicators-heading">
@@ -168,7 +221,7 @@
                 <strong>AFL Prediction Model</strong>
                 <span>By Sam Speed</span>
             </div>
-            <p>Data: <a href="https://www.wheeloratings.com/" rel="noreferrer">Wheelo Ratings</a> and <a href="https://api.squiggle.com.au/" rel="noreferrer">Squiggle</a>. Stored via {{ storage_source }}. Not betting advice.</p>
+            <p>Data: <a href="https://www.wheeloratings.com/" rel="noreferrer">Wheelo Ratings</a>, <a href="https://api.squiggle.com.au/" rel="noreferrer">Squiggle</a> and <a href="https://www.afl.com.au/news/1628837/ins-and-outs-every-clubs-full-list-changes-ahead-of-2027" rel="noreferrer">AFL list changes</a>. Stored via {{ storage_source }}. Not betting advice.</p>
             {% if payload.get('generated_at') %}<small>Updated {{ display_time(payload.generated_at) }} AEST · {{ payload.get('model_version', '') }}</small>{% endif %}
         </footer>
     </div>

@@ -7,3 +7,12 @@ document.querySelectorAll(".explanation-toggle").forEach((button) => {
     button.querySelector(".toggle-icon").textContent = expanded ? "+" : "−";
   });
 });
+
+const fixtureRoundSelect = document.getElementById("fixture-round-select");
+if (fixtureRoundSelect) {
+  fixtureRoundSelect.addEventListener("change", () => {
+    document.querySelectorAll("[data-fixture-round]").forEach((panel) => {
+      panel.hidden = panel.dataset.fixtureRound !== fixtureRoundSelect.value;
+    });
+  });
+}

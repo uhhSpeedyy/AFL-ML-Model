@@ -12,8 +12,10 @@ from .modeling import ModelBundle
 def fixture_feature_frame(
     bundle: ModelBundle,
     games: list[dict[str, Any]],
+    roster_changes: dict[str, Any] | None = None,
 ) -> pd.DataFrame:
     engine = bundle.feature_engine.copy()
+    engine.apply_roster_changes(roster_changes)
     rows: list[dict[str, Any]] = []
     for game in games:
         fixture = {
@@ -39,6 +41,7 @@ def fixture_feature_frame(
 def generate_predictions(
     bundle: ModelBundle,
     games: list[dict[str, Any]],
+    roster_changes: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     generated_at = datetime.now(timezone.utc).isoformat()
     if not games:
@@ -49,7 +52,7 @@ def generate_predictions(
             "predictions": [],
         }
 
-    frame = fixture_feature_frame(bundle, games)
+    frame = fixture_feature_frame(bundle, games, roster_changes=roster_changes)
     model_output = bundle.predict(frame)
     predictions: list[dict[str, Any]] = []
     for index, row in frame.iterrows():

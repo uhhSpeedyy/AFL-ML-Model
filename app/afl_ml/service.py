@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 from .artifacts import load_json, load_model, save_json
-from .data_sources import PublicDataClient, load_historical_matches, upcoming_round
+from .data_sources import (
+    PublicDataClient,
+    fixture_schedule,
+    load_historical_matches,
+    upcoming_round,
+)
 from .database import save_model_run, save_predictions
 from .features import update_engine_with_matches
 from .prediction import generate_predictions
+from .rosters import load_roster_changes, roster_summary
 from .settings import Settings
 
 
@@ -22,10 +28,12 @@ def refresh_prediction_snapshot(
         settings.current_season,
     )
     updated_matches = update_engine_with_matches(bundle.feature_engine, current_matches)
-    games = upcoming_round(
-        client.squiggle_games(settings.current_season, mutable=True)
-    )
-    payload = generate_predictions(bundle, games)
+    fixture_games = client.squiggle_games(settings.fixture_season, mutable=True)
+    games = upcoming_round(fixture_games)
+    roster_changes = load_roster_changes(settings.roster_path())
+    payload = generate_predictions(bundle, games, roster_changes=roster_changes)
+    payload["fixture"] = fixture_schedule(fixture_games)
+    payload["roster_update"] = roster_summary(roster_changes)
     payload["state_updates_applied"] = updated_matches
     save_json(payload, settings.predictions_path)
     if persist_db:

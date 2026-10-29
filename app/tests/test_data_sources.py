@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from afl_ml.data_sources import canonical_team, columnar_records, upcoming_round
+from afl_ml.data_sources import (
+    canonical_team,
+    columnar_records,
+    fixture_schedule,
+    upcoming_round,
+)
 
 
 def test_columnar_records_handles_lists_and_scalars():
@@ -42,3 +47,34 @@ def test_upcoming_round_only_returns_first_future_round():
     ]
     result = upcoming_round(games, now=datetime(2026, 8, 18, tzinfo=timezone.utc))
     assert [game["id"] for game in result] == [1]
+
+
+def test_fixture_schedule_marks_floating_round_dates_as_unconfirmed():
+    games = [
+        {
+            "id": 1,
+            "year": 2027,
+            "round": 1,
+            "roundname": "Round 1",
+            "date": "2027-03-17 19:30:00",
+            "tz": "+11:00",
+            "venue": "S.C.G.",
+            "hteam": "Sydney",
+            "ateam": "Geelong",
+        },
+        {
+            "id": 2,
+            "year": 2027,
+            "round": 17,
+            "roundname": "Round 17",
+            "date": "2027-07-01 12:00:00",
+            "tz": "+10:00",
+            "venue": "M.C.G.",
+            "hteam": "Richmond",
+            "ateam": "Carlton",
+        },
+    ]
+    result = fixture_schedule(games)
+    assert result[0]["date_confirmed"] is True
+    assert result[1]["date_confirmed"] is False
+    assert result[1]["home_team"] == "Richmond"

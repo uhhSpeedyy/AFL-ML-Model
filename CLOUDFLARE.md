@@ -57,8 +57,9 @@ inactive public repositories after 60 days; check the Actions page if updates st
 The runner caches public historical inputs; all current-season rounds are
 revalidated, including rounds previously downloaded before their last game ended.
 Model selection still protects the 2022 holdout. `AFL_CURRENT_SEASON` defaults to
-2026 and must be updated when the next season's source data is available. This is
-intentional: do not advance the year automatically to a missing feed.
+2026 for completed training data, while `AFL_FIXTURE_SEASON` defaults to 2027 for
+the published future schedule. Keeping them separate prevents the trainer from
+treating an unplayed season as historical input.
 
 GitHub Actions standard runners are free for public repositories. Do not switch
 this repository to private, use larger runners, raise paid storage limits, or add

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from afl_ml.features import build_feature_frame
+from afl_ml.features import FeatureEngine, PlayerState, build_feature_frame
 
 
 def _match(match_id: str, home: str, away: str, day: int, round_number: int, margin: int):
@@ -59,3 +59,35 @@ def test_same_round_results_do_not_leak_between_feature_snapshots():
     assert frame.loc[2, "prior_games_min"] >= 0
     assert frame.loc[0, "form_margin_short_diff"] != frame.loc[0, "form_margin_short_diff"]
     assert frame.loc[1, "form_margin_short_diff"] != frame.loc[1, "form_margin_short_diff"]
+
+
+def test_roster_overlay_transfers_known_rating_and_removes_departure():
+    engine = FeatureEngine()
+    engine.teams["Sydney"].last_lineup = ["7", "8"]
+    engine.teams["North Melbourne"].last_lineup = ["20", "21"]
+    engine.players[("Sydney", "7")] = PlayerState(rating=15.0, games=40)
+    engine.players[("Sydney", "8")] = PlayerState(rating=9.0, games=12)
+    engine.players[("North Melbourne", "20")] = PlayerState(rating=8.0, games=5)
+    engine.players[("North Melbourne", "21")] = PlayerState(rating=7.0, games=3)
+    engine.player_names[("Sydney", "7")] = "nick blakey"
+    engine.player_names[("Sydney", "8")] = "other swan"
+    engine.player_names[("North Melbourne", "20")] = "north one"
+    engine.player_names[("North Melbourne", "21")] = "north two"
+
+    summary = engine.apply_roster_changes(
+        {
+            "clubs": {
+                "Sydney": {"ins": [], "outs": [{"player": "Nick Blakey"}]},
+                "North Melbourne": {
+                    "ins": [{"player": "Nick Blakey", "from": "Sydney"}],
+                    "outs": [],
+                },
+            }
+        }
+    )
+
+    assert "7" not in engine.teams["Sydney"].last_lineup
+    assert "7" in engine.teams["North Melbourne"].last_lineup
+    assert engine.players[("North Melbourne", "7")].rating == 15.0
+    assert summary["players_in"] == 1
+    assert summary["players_out"] == 1

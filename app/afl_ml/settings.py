@@ -39,6 +39,9 @@ class Settings:
     current_season: int = field(
         default_factory=lambda: int(os.getenv("AFL_CURRENT_SEASON", "2026"))
     )
+    fixture_season: int = field(
+        default_factory=lambda: int(os.getenv("AFL_FIXTURE_SEASON", "2027"))
+    )
     squiggle_contact: str = field(
         default_factory=lambda: os.getenv(
             "SQUIGGLE_CONTACT",
@@ -74,6 +77,9 @@ class Settings:
     @property
     def report_path(self) -> Path:
         return self.artifacts_dir / "model_report.json"
+
+    def roster_path(self, season: int | None = None) -> Path:
+        return self.data_dir / "rosters" / f"{season or self.fixture_season}.json"
 
     @property
     def user_agent(self) -> str:

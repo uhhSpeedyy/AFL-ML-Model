@@ -11,12 +11,19 @@ Live site: [sam-speed-models.pages.dev](https://sam-speed-models.pages.dev/). Se
 
 ## AFL model
 
-- Historical window: 2012–2026, with 3,092 completed matches in the current snapshot.
+- Historical window: 2012–2026, with 3,097 completed matches in the current snapshot.
 - Untouched test season: 2022. Model selection and calibration use only data available before 2022; the production estimator excludes all 2022 match rows.
 - Estimator: a calibrated blend of regularised linear regression and histogram gradient boosting.
 - Inputs: opponent-adjusted results strength, rolling attack/defence, xScore, inside 50s, clearances, contested ball, scoring shots, player ratings, recent-lineup strength and continuity, rest, venue familiarity, and travel.
 - Leakage protection: every match feature is a lagged or rolling value known before the bounce. Matches in the same round are calculated from the same pre-round state.
-- Current 2022 holdout result: 75.2% tip accuracy and 25.34-point margin MAE across 207 matches.
+- Current 2022 holdout result: 75.7% tip accuracy and 25.33-point margin MAE across 207 matches.
+
+The public snapshot also includes all 207 matches in the newly released 2027
+fixture. Round 1 predictions apply a versioned, provisional post-trade roster
+overlay: known player ratings move with confirmed trades and free-agent moves,
+retirements and genuine delistings are removed, and players without recent AFL
+evidence receive the neutral prior. The overlay is explicitly pre-draft and must
+be updated after the national/rookie drafts and later SSP signings.
 
 The full reproducible evaluation and feature-importance output is stored in `app/artifacts/model_report.json`. Same-match correlations in that report are descriptive only; they are not used as same-game inputs and do not establish causation.
 
@@ -65,6 +72,7 @@ AFL_DATABASE_READ_ENABLED=false
 AFL_HOLDOUT_SEASON=2022
 AFL_START_SEASON=2012
 AFL_CURRENT_SEASON=2026
+AFL_FIXTURE_SEASON=2027
 SQUIGGLE_CONTACT=your-contact-address
 OPEN_LIBRARY_CONTACT=monitored-contact@example.com
 ```
@@ -77,7 +85,7 @@ The live website is [sam-speed-models.pages.dev](https://sam-speed-models.pages.
 
 The former Azure Terraform configuration is archived as `legacy/azure/main.tf.disabled` so it cannot accidentally provision paid resources from the repository root. SQL helper scripts remain for historical reference only. Private database and infrastructure backups are excluded from Git.
 
-`.github/workflows/refresh-predictions.yml` trains and validates in GitHub Actions every Tuesday, then commits the model artifacts to `main`. Cloudflare Pages builds from `main`. No Azure refresh token or database is used. `AFL_CURRENT_SEASON` remains explicit (2026); update it when the next season feed is available.
+`.github/workflows/refresh-predictions.yml` trains and validates in GitHub Actions every Tuesday, then commits the model artifacts to `main`. Cloudflare Pages builds from `main`. No Azure refresh token or database is used. `AFL_CURRENT_SEASON` remains 2026 while it is the latest completed training season; `AFL_FIXTURE_SEASON` is 2027 so future games can be displayed without attempting to train on an unplayed season.
 
 Local Flask endpoints (see [Cloudflare route compatibility](CLOUDFLARE.md#route-compatibility) for the public static deployment):
 
