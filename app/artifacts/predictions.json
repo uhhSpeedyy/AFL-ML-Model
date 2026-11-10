@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20261103-070457",
-  "generated_at": "2026-11-03T07:04:59.970347+00:00",
+  "model_version": "afl-20261110-073732",
+  "generated_at": "2026-11-10T07:37:34.542094+00:00",
   "round_name": "Round 1",
   "season": 2027,
   "predictions": [
@@ -13,14 +13,14 @@
       "venue": "S.C.G.",
       "home_team": "Sydney",
       "away_team": "Geelong",
-      "home_win_probability": 53.2,
-      "away_win_probability": 45.6,
+      "home_win_probability": 53.4,
+      "away_win_probability": 45.4,
       "draw_probability": 1.2,
-      "expected_home_margin": 3.1,
-      "expected_margin": 3.1,
+      "expected_home_margin": 3.3,
+      "expected_margin": 3.3,
       "predicted_winner": "Sydney",
-      "interval_80_low": -39.1,
-      "interval_80_high": 45.4,
+      "interval_80_low": -39.0,
+      "interval_80_high": 45.6,
       "factors": [
         {
           "feature": "venue_familiarity_diff",
@@ -55,7 +55,7 @@
           "away_value": 6121.8,
           "difference": 506.4,
           "advantage_team": "Sydney",
-          "linear_contribution_points": 0.8,
+          "linear_contribution_points": 0.9,
           "lower_is_better": false
         },
         {
@@ -83,8 +83,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40309",
@@ -95,14 +95,14 @@
       "venue": "Perth Stadium",
       "home_team": "Fremantle",
       "away_team": "Western Bulldogs",
-      "home_win_probability": 71.4,
-      "away_win_probability": 27.6,
+      "home_win_probability": 71.7,
+      "away_win_probability": 27.3,
       "draw_probability": 1.0,
-      "expected_home_margin": 19.1,
-      "expected_margin": 19.1,
+      "expected_home_margin": 19.4,
+      "expected_margin": 19.4,
       "predicted_winner": "Fremantle",
-      "interval_80_low": -23.1,
-      "interval_80_high": 61.4,
+      "interval_80_low": -22.9,
+      "interval_80_high": 61.7,
       "factors": [
         {
           "feature": "form_margin_long_diff",
@@ -165,8 +165,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40310",
@@ -177,14 +177,14 @@
       "venue": "M.C.G.",
       "home_team": "Hawthorn",
       "away_team": "Brisbane Lions",
-      "home_win_probability": 58.3,
-      "away_win_probability": 40.5,
+      "home_win_probability": 58.9,
+      "away_win_probability": 39.9,
       "draw_probability": 1.2,
-      "expected_home_margin": 7.4,
-      "expected_margin": 7.4,
+      "expected_home_margin": 8.0,
+      "expected_margin": 8.0,
       "predicted_winner": "Hawthorn",
-      "interval_80_low": -34.9,
-      "interval_80_high": 49.7,
+      "interval_80_low": -34.3,
+      "interval_80_high": 50.2,
       "factors": [
         {
           "feature": "attack_short_diff",
@@ -247,8 +247,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40311",
@@ -259,14 +259,14 @@
       "venue": "M.C.G.",
       "home_team": "Richmond",
       "away_team": "Carlton",
-      "home_win_probability": 22.5,
-      "away_win_probability": 76.6,
+      "home_win_probability": 22.1,
+      "away_win_probability": 77.0,
       "draw_probability": 0.9,
-      "expected_home_margin": -24.4,
-      "expected_margin": 24.4,
+      "expected_home_margin": -24.9,
+      "expected_margin": 24.9,
       "predicted_winner": "Carlton",
-      "interval_80_low": -66.7,
-      "interval_80_high": 17.9,
+      "interval_80_low": -67.2,
+      "interval_80_high": 17.4,
       "factors": [
         {
           "feature": "form_margin_long_diff",
@@ -329,8 +329,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40312",
@@ -341,14 +341,14 @@
       "venue": "Adelaide Oval",
       "home_team": "Adelaide",
       "away_team": "GWS",
-      "home_win_probability": 70.6,
-      "away_win_probability": 28.4,
+      "home_win_probability": 70.2,
+      "away_win_probability": 28.8,
       "draw_probability": 1.0,
-      "expected_home_margin": 18.3,
-      "expected_margin": 18.3,
+      "expected_home_margin": 18.0,
+      "expected_margin": 18.0,
       "predicted_winner": "Adelaide",
-      "interval_80_low": -24.0,
-      "interval_80_high": 60.6,
+      "interval_80_low": -24.3,
+      "interval_80_high": 60.3,
       "factors": [
         {
           "feature": "player_rating_diff",
@@ -411,8 +411,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40313",
@@ -423,14 +423,14 @@
       "venue": "M.C.G.",
       "home_team": "St Kilda",
       "away_team": "Collingwood",
-      "home_win_probability": 37.1,
-      "away_win_probability": 61.7,
-      "draw_probability": 1.2,
-      "expected_home_margin": -10.4,
-      "expected_margin": 10.4,
+      "home_win_probability": 36.7,
+      "away_win_probability": 62.2,
+      "draw_probability": 1.1,
+      "expected_home_margin": -10.7,
+      "expected_margin": 10.7,
       "predicted_winner": "Collingwood",
-      "interval_80_low": -52.7,
-      "interval_80_high": 31.9,
+      "interval_80_low": -53.0,
+      "interval_80_high": 31.6,
       "factors": [
         {
           "feature": "venue_familiarity_diff",
@@ -493,8 +493,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40314",
@@ -505,14 +505,14 @@
       "venue": "Docklands",
       "home_team": "North Melbourne",
       "away_team": "Port Adelaide",
-      "home_win_probability": 68.3,
-      "away_win_probability": 30.6,
+      "home_win_probability": 67.8,
+      "away_win_probability": 31.1,
       "draw_probability": 1.1,
-      "expected_home_margin": 16.2,
-      "expected_margin": 16.2,
+      "expected_home_margin": 15.8,
+      "expected_margin": 15.8,
       "predicted_winner": "North Melbourne",
-      "interval_80_low": -26.1,
-      "interval_80_high": 58.5,
+      "interval_80_low": -26.5,
+      "interval_80_high": 58.1,
       "factors": [
         {
           "feature": "player_rating_diff",
@@ -575,8 +575,8 @@
           "lower_is_better": true
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40315",
@@ -587,14 +587,14 @@
       "venue": "M.C.G.",
       "home_team": "Melbourne",
       "away_team": "Essendon",
-      "home_win_probability": 85.9,
-      "away_win_probability": 13.4,
+      "home_win_probability": 86.1,
+      "away_win_probability": 13.2,
       "draw_probability": 0.7,
-      "expected_home_margin": 36.0,
-      "expected_margin": 36.0,
+      "expected_home_margin": 36.3,
+      "expected_margin": 36.3,
       "predicted_winner": "Melbourne",
-      "interval_80_low": -6.3,
-      "interval_80_high": 78.3,
+      "interval_80_low": -6.0,
+      "interval_80_high": 78.6,
       "factors": [
         {
           "feature": "form_margin_long_diff",
@@ -657,8 +657,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     },
     {
       "game_id": "40316",
@@ -669,14 +669,14 @@
       "venue": "Perth Stadium",
       "home_team": "West Coast",
       "away_team": "Gold Coast",
-      "home_win_probability": 45.8,
-      "away_win_probability": 53.0,
+      "home_win_probability": 45.3,
+      "away_win_probability": 53.5,
       "draw_probability": 1.2,
-      "expected_home_margin": -3.0,
-      "expected_margin": 3.0,
+      "expected_home_margin": -3.4,
+      "expected_margin": 3.4,
       "predicted_winner": "Gold Coast",
-      "interval_80_low": -45.3,
-      "interval_80_high": 39.3,
+      "interval_80_low": -45.7,
+      "interval_80_high": 38.9,
       "factors": [
         {
           "feature": "form_margin_long_diff",
@@ -739,8 +739,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261103-070457",
-      "generated_at": "2026-11-03T07:04:59.970347+00:00"
+      "model_version": "afl-20261110-073732",
+      "generated_at": "2026-11-10T07:37:34.542094+00:00"
     }
   ],
   "fixture": [
