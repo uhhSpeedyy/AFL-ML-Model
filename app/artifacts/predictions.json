@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20261117-081643",
-  "generated_at": "2026-11-17T08:16:45.453077+00:00",
+  "model_version": "afl-20261124-101335",
+  "generated_at": "2026-11-24T10:13:38.316109+00:00",
   "round_name": "Round 1",
   "season": 2027,
   "predictions": [
@@ -83,8 +83,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40309",
@@ -165,8 +165,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40310",
@@ -247,8 +247,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40311",
@@ -329,8 +329,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40312",
@@ -411,8 +411,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40313",
@@ -493,8 +493,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40314",
@@ -575,8 +575,8 @@
           "lower_is_better": true
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40315",
@@ -657,8 +657,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     },
     {
       "game_id": "40316",
@@ -739,8 +739,8 @@
           "lower_is_better": false
         }
       ],
-      "model_version": "afl-20261117-081643",
-      "generated_at": "2026-11-17T08:16:45.453077+00:00"
+      "model_version": "afl-20261124-101335",
+      "generated_at": "2026-11-24T10:13:38.316109+00:00"
     }
   ],
   "fixture": [

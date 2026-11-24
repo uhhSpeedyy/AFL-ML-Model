@@ -1,6 +1,6 @@
 {
-  "model_version": "afl-20261117-081643",
-  "trained_at": "2026-11-17T08:16:43.751156+00:00",
+  "model_version": "afl-20261124-101335",
+  "trained_at": "2026-11-24T10:13:35.020924+00:00",
   "holdout_season": 2022,
   "holdout_policy": "Estimator parameters and tuning were frozen using 2012-2021 before the one-pass 2022 test. Production fitting excludes 2022 rows.",
   "training_seasons": [
@@ -39,7 +39,7 @@
     "log_loss": 0.6118,
     "margin_mae": 27.04,
     "margin_rmse": 34.02,
-    "margin_bias": 0.0,
+    "margin_bias": -0.0,
     "within_12_points": 0.2808,
     "within_24_points": 0.5283,
     "interval_80_coverage": 0.7737
@@ -387,7 +387,7 @@
     "wheelo": "https://www.wheeloratings.com/",
     "squiggle": "https://api.squiggle.com.au/",
     "source_files": 438,
-    "snapshot_sha256": "57a1684ea0256b75f0981aa71320c0852841994566b24708d545681932fc9c2b",
+    "snapshot_sha256": "623ace6620e81c5e8af59d2ebebb30c98498df94bbd1837f80f2da3125679988",
     "historical_matches": 3097,
     "latest_completed_match": "2026-09-26T14:30:00+10:00"
   }
